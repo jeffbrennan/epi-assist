@@ -1,5 +1,6 @@
 import scipy.stats as st
-
+import math
+import numpy as np
 
 def directadjustment (): 
     
@@ -231,26 +232,104 @@ def twobytwo():
         print ('Sensitivity: ' + str(output[2]))
         print ('Specificity: ' + str(output[3]))
 
-def skew():
+def histogramfeat():
     print ('Enter histogram data set as a list')
     data = [float(x) for x in input().split()]
     
     print ('Enter desired number of decimal places')
     decimalchoice = str(input())
 
+    kurtosisCalc = st.kurtosis(data)
+    skewCalc = st.skew(data)
+    mean = np.mean(data)
+    median = np.median(data)
 
-    skewcalc = st.skew(data)
     print ('=============RESULT===========')
-    if skewcalc > 1: 
-        print ('Your data is right skewed')
-    elif skewcalc < 1:
-        print ('Your data is left skewed')
-    elif skewcalc == 0: 
-        print ('Your data is normal')
+   
+    if mean > median:
+        print('Histogram is right-skewed')
+    elif mean < median:
+        print('Histogram is left-skewed')
+    elif mean == median:
+        print('Histogram is symmetric')
 
-    skewcalc = formatter(skewcalc, decimalchoice)
 
-    print ('Skewness: ' + str(skewcalc))
+    if kurtosisCalc > 3:
+        print ('Data is leptokurtic')
+    elif kurtosisCalc < 3:
+        print ('Data is platykurtic ')
+
+    skewCalc = formatter(skewCalc, decimalchoice)
+    kurtosisCalc = formatter(kurtosisCalc, decimalchoice)
+
+    print ('Skewness: ' + str(skewCalc))
+    print ('Kurtosis: ' + str(kurtosisCalc))
+
+def estimation():
+    print ('1 - Population parameters | 2 - Sample parameters')
+    typechoice = str(input())
+
+    if typechoice == '1':
+        print('Enter number in sample')
+        sampleN = int(input())
+
+        print('Enter observations for all N in sample')
+        samplevalues = [float(x) for x in input().split()]
+
+        if len(samplevalues) == sampleN:
+
+            print ('Enter desired number of decimal places')
+            decimalchoice = str(input())           
+
+            mean = sum(samplevalues) / sampleN
+            
+            squareDif = [(i - mean)**2 for i in samplevalues]
+            variance = sum(squareDif) / sampleN
+
+            SD = math.sqrt(variance)
+            SE = variance / (math.sqrt(sampleN))
+            results = [mean, variance, SD, SE]
+            output = [formatter(i, decimalchoice) for i in results]
+
+            print ('Population mean: ' + str(output[0]))
+            print ('Population variance: ' + str(output[1]))
+            print ('Population SD: ' + str(output[2]))
+        else:
+            print ('Entered incorrect number of observations - restarting...')
+            estimation()
+
+    elif typechoice == '2':
+        
+        print('Enter number in sample')
+        sampleN = int(input())
+
+        print('Enter observations for all N in sample')
+        samplevalues = [float(x) for x in input().split()]
+        
+        if len(samplevalues) == sampleN:
+            print ('Enter desired number of decimal places')
+            decimalchoice = str(input())           
+
+            mean = sum(samplevalues) / sampleN
+            
+            squareDif = [(i - mean)**2 for i in samplevalues]
+            variance = sum(squareDif) / (sampleN - 1)
+
+            SD = math.sqrt(variance)
+            
+            SE = variance / (math.sqrt(sampleN))
+
+            results = [mean, variance, SD, SE]
+            output = [formatter(i, decimalchoice) for i in results]
+
+            print ('Sample mean: ' + str(output[0]))
+            print ('Sample variance: ' + str(output[1]))
+            print ('Sample SD: ' + str(output[2]))
+            print ('Sample SE: ' + str(output[3]))
+
+        else:
+            print ('Entered incorrect number of observations - restarting...')
+            estimation()  
 
 def outputter(result):
     print ('=========================== RESULT ===========================')
@@ -271,7 +350,9 @@ def calcselection(choice):
     elif choice == 4:
         twobytwo()
     elif choice == 5:
-        skew()
+        histogramfeat()
+    elif choice == 6:
+        estimation()
 
 def chooser():
     print ('Enter the calc you would like to use')
@@ -279,7 +360,8 @@ def chooser():
     print ('2 - bayes')
     print ('3 - direct adjustment')
     print ('4 - 2X2 Solver')
-    print ('5 - Histogram skew')
+    print ('5 - Histogram')
+    print ('6 - Estimations')
 
     choice = int(input())  
     
