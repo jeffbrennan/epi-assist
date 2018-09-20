@@ -50,21 +50,45 @@ def directadjustment ():
     outputter(('Location 1: ' + str(adjustedrate1) + popfactortext + ' | Location 2: ' + str(adjustedrate2) + popfactortext))
     
 def zscore():
-    print ('======= Z SCORE AREA FINDER ==========')
+    print ('======= Z SCORE FINDER ==========')
 
-    print ('Enter your desired Z score')
-    zscore = float(input())
+    print ('1 - Z Score | 2 - Area given Z Score')
 
-    print ('Enter desired number of decimal places')
-    decimalchoice = str(input())
+    typechoice = str(input())
 
-    areacalc = st.norm.cdf(zscore)
-    areapercent = areacalc * 100
+    if typechoice == '1':
+        print ('Enter the observation')
+        Obs = float(input())
+        print ('Enter the mean')
+        Mean = float(input())
+        print ('Enter SD')
+        SD = float(input())
 
-    areacalc = formatter(areacalc, decimalchoice)
-    areapercent = formatter(areapercent, decimalchoice)    
+        print ('Enter desired number of decimal places')
+        decimalchoice = str(input())
 
-    outputter(('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' ))
+        zresult = (Obs - Mean) / SD
+
+        zresult = formatter(zresult, decimalchoice)
+
+        outputter('Z Score: ' + str(zresult))
+
+    elif typechoice == '2':
+
+        print ('Enter your desired Z score')
+        zscore = float(input())
+        zscore = float(formatter(zscore, '2')) ## biostats class uses table with 2 decimal place z scores
+
+        print ('Enter desired number of decimal places')
+        decimalchoice = str(input())
+
+        areacalc = st.norm.cdf(zscore)
+        areapercent = areacalc * 100
+
+        areacalc = formatter(areacalc, decimalchoice)
+        areapercent = formatter(areapercent, decimalchoice)    
+
+        outputter(('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' ))
 
 def bayes():
     print ('====== BAYES CALC ========')
@@ -188,6 +212,27 @@ def twobytwo():
         print ('Sensitivity: ' + str(output[2]))
         print ('Specificity: ' + str(output[3]))
 
+def skew():
+    print ('Enter histogram data set as a list')
+    data = [float(x) for x in input().split()]
+    
+    print ('Enter desired number of decimal places')
+    decimalchoice = str(input())
+
+
+    skewcalc = st.skew(data)
+    print ('=============RESULT===========')
+    if skewcalc > 1: 
+        print ('Your data is right skewed')
+    elif skewcalc < 1:
+        print ('Your data is left skewed')
+    elif skewcalc == 0: 
+        print ('Your data is normal')
+
+    skewcalc = formatter(skewcalc, decimalchoice)
+
+    print ('Skewness: ' + str(skewcalc))
+
 def outputter(result):
     print ('=========================== RESULT ===========================')
     print (result)
@@ -206,16 +251,18 @@ def calcselection(choice):
         directadjustment()
     elif choice == 4:
         twobytwo()
-
+    elif choice == 5:
+        skew()
 def chooser():
     print ('Enter the calc you would like to use')
-    print ('1 - zscore area')
+    print ('1 - zscore')
     print ('2 - bayes')
     print ('3 - direct adjustment')
     print ('4 - 2X2 Solver')
+    print ('5 - Histogram skew')
+
     choice = int(input())  
     
     calcselection(choice)
-
 
 chooser()
