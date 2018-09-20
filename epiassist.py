@@ -52,7 +52,7 @@ def directadjustment ():
 def zscore():
     print ('======= Z SCORE FINDER ==========')
 
-    print ('1 - Z Score | 2 - Area given Z Score')
+    print ('1 - Z Score | 2 - Area given Z Score | 3 - Obs given percentile')
 
     typechoice = str(input())
 
@@ -89,6 +89,25 @@ def zscore():
         areapercent = formatter(areapercent, decimalchoice)    
 
         outputter(('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' ))
+
+    elif typechoice == '3':
+       
+        print ('Enter percentile')
+        percentile = float(input())
+        print ('Enter SD')
+        SD = float(input())
+        print ('Enter mean')
+        Mean = float(input())
+
+        print ('Enter desired number of decimal places')
+        decimalchoice = str(input())
+
+        zresult = st.norm.ppf(percentile)
+
+        observation = (zresult * SD) + Mean
+        observation = formatter(observation, decimalchoice)
+
+        print ('Observation at the desired percentile: ' + observation)
 
 def bayes():
     print ('====== BAYES CALC ========')
@@ -253,6 +272,7 @@ def calcselection(choice):
         twobytwo()
     elif choice == 5:
         skew()
+
 def chooser():
     print ('Enter the calc you would like to use')
     print ('1 - zscore')
