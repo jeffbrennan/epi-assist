@@ -331,6 +331,29 @@ def estimation():
             print ('Entered incorrect number of observations - restarting...')
             estimation()  
 
+def binomial():
+    print ('Enter n')
+    n = int(input())
+    
+    print ('Enter x')
+    x = int(input())
+
+    print ('Enter p')
+    p = float(input())
+    
+    print ('Enter desired number of decimal places')
+    decimalchoice = str(input())
+
+    choose = math.factorial(n) / (math.factorial(x) * math.factorial(n-x))
+    result = (choose * (p ** x) * (1 - p)  ** (n - x))
+    resultpercent = result * 100
+
+    result = formatter(result, decimalchoice)
+    resultpercent = formatter(resultpercent, decimalchoice)
+    
+    print ('Probability: ' + result + ' | ' + (resultpercent) + '%')
+
+
 def outputter(result):
     print ('=========================== RESULT ===========================')
     print (result)
@@ -353,7 +376,8 @@ def calcselection(choice):
         histogramfeat()
     elif choice == 6:
         estimation()
-
+    elif choice == 7:
+        binomial()
 def chooser():
     print ('Enter the calc you would like to use')
     print ('1 - zscore')
@@ -362,7 +386,7 @@ def chooser():
     print ('4 - 2X2 Solver')
     print ('5 - Histogram')
     print ('6 - Estimations')
-
+    print ('7 - Binomial')
     choice = int(input())  
     
     calcselection(choice)
