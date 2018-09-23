@@ -2,7 +2,7 @@ import scipy.stats as st
 import math
 import numpy as np
 
-def directadjustment (): 
+def directadjustment (decimalchoice): 
     
     loc1Rates = []
     loc2Rates = []
@@ -29,9 +29,6 @@ def directadjustment ():
     for _ in range(bins):
         standardpop.append(int(input()))
 
-    print ('Enter desired number of decimal places')
-    decimalchoice = str(input())
-
     for i in range(bins):
         expectedpop1.append(loc1Rates[i] * standardpop[i])
         expectedpop2.append(loc2Rates[i] * standardpop[i])
@@ -50,14 +47,8 @@ def directadjustment ():
 
     outputter(('Location 1: ' + str(adjustedrate1) + popfactortext + ' | Location 2: ' + str(adjustedrate2) + popfactortext))
     
-def zscore():
-    print ('======= Z SCORE FINDER ==========')
-
-    print ('1 - Z Score | 2 - Area given Z Score | 3 - Obs given percentile')
-
-    typechoice = str(input())
-
-    if typechoice == '1':
+def zscore(decimalchoice):
+    def zscore_value():
         print ('Enter the observation')
         Obs = float(input())
         print ('Enter the mean')
@@ -65,23 +56,20 @@ def zscore():
         print ('Enter SD')
         SD = float(input())
 
-        print ('Enter desired number of decimal places')
-        decimalchoice = str(input())
-
         zresult = (Obs - Mean) / SD
 
-        zresult = formatter(zresult, decimalchoice)
-
+        zresult = float(formatter(zresult, decimalchoice))
         outputter('Z Score: ' + str(zresult))
 
-    elif typechoice == '2':
+        zscore_area(zresult)
 
-        print ('Enter your desired Z score')
-        zscore = float(input())
-        zscore = float(formatter(zscore, '2')) ## biostats class uses table with 2 decimal place z scores
-
-        print ('Enter desired number of decimal places')
-        decimalchoice = str(input())
+    def zscore_area(calc_zscore): 
+        if calc_zscore:
+            zscore = calc_zscore    
+        else:
+            print ('Enter your desired Z score')
+            zscore = float(input())
+            zscore = float(formatter(zscore, '2')) ## biostats class uses table with 2 decimal place z scores
 
         areacalc = st.norm.cdf(zscore)
         areapercent = areacalc * 100
@@ -91,7 +79,7 @@ def zscore():
 
         outputter(('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' ))
 
-    elif typechoice == '3':
+    def zscore_observation():
        
         print ('Enter percentile')
         percentile = float(input())
@@ -100,9 +88,6 @@ def zscore():
         print ('Enter mean')
         Mean = float(input())
 
-        print ('Enter desired number of decimal places')
-        decimalchoice = str(input())
-
         zresult = st.norm.ppf(percentile)
 
         observation = (zresult * SD) + Mean
@@ -110,7 +95,23 @@ def zscore():
 
         print ('Observation at the desired percentile: ' + observation)
 
-def bayes():
+    def zchooser(choice):
+        if choice == '1':
+            zscore_value()
+        elif choice == '2':
+            zscore_area(None)
+        elif choice == '3':
+            zscore_observation()
+   
+    print ('================== Z SCORE FINDER ================== ')
+
+    print ('1 - Z Score | 2 - Area given Z Score | 3 - Obs given percentile')
+
+    typechoice = str(input())
+    zchooser(typechoice)
+
+
+def bayes(decimalchoice):
     print ('====== BAYES CALC ========')
 
     print ('Enter disease prevalence (as a proportion)')
@@ -120,9 +121,6 @@ def bayes():
     print ('Enter accuracy for complement test (as a proportion)')
     complementAccuracy = float(input())
 
-    print ('Enter desired number of decimal places')
-    decimalchoice = str(input())
-
     numerator = (prevalence * diseaseAccuracy)
     denominator = (numerator + ((1-prevalence) * complementAccuracy))
 
@@ -131,7 +129,7 @@ def bayes():
     
     outputter(result)
 
-def twobytwo():
+def twobytwo(decimalchoice):
 
     print('====== 2x2 TABLE SOLVER ======')
 
@@ -149,9 +147,6 @@ def twobytwo():
         PVP = input()
         print ('Enter PVN')
         PVN = input()
-
-        print ('Enter desired number of decimal places')
-        decimalchoice = str(input())
 
         if sensitivity and specificity:
 
@@ -216,9 +211,6 @@ def twobytwo():
         C = int(input())
         print ('Enter value in cell D')
         D = int(input())
-
-        print ('Enter desired number of decimal places')
-        decimalchoice = str(input())
     
         sensitivity = A / (A+C)
         specificity = D / (B+D)
@@ -232,13 +224,10 @@ def twobytwo():
         print ('Sensitivity: ' + str(output[2]))
         print ('Specificity: ' + str(output[3]))
 
-def histogramfeat():
+def histogramfeat(decimalchoice):
     print ('Enter histogram data set as a list')
     data = [float(x) for x in input().split()]
     
-    print ('Enter desired number of decimal places')
-    decimalchoice = str(input())
-
     kurtosisCalc = st.kurtosis(data)
     skewCalc = st.skew(data)
     mean = np.mean(data)
@@ -265,7 +254,7 @@ def histogramfeat():
     print ('Skewness: ' + str(skewCalc))
     print ('Kurtosis: ' + str(kurtosisCalc))
 
-def estimation():
+def estimation(decimalchoice):
     print ('1 - Population parameters | 2 - Sample parameters')
     typechoice = str(input())
 
@@ -277,10 +266,7 @@ def estimation():
         samplevalues = [float(x) for x in input().split()]
 
         if len(samplevalues) == sampleN:
-
-            print ('Enter desired number of decimal places')
-            decimalchoice = str(input())           
-
+     
             mean = sum(samplevalues) / sampleN
             
             squareDif = [(i - mean)**2 for i in samplevalues]
@@ -296,7 +282,7 @@ def estimation():
             print ('Population SD: ' + str(output[2]))
         else:
             print ('Entered incorrect number of observations - restarting...')
-            estimation()
+            estimation(decimalchoice)
 
     elif typechoice == '2':
         
@@ -307,9 +293,6 @@ def estimation():
         samplevalues = [float(x) for x in input().split()]
         
         if len(samplevalues) == sampleN:
-            print ('Enter desired number of decimal places')
-            decimalchoice = str(input())           
-
             mean = sum(samplevalues) / sampleN
             
             squareDif = [(i - mean)**2 for i in samplevalues]
@@ -329,9 +312,9 @@ def estimation():
 
         else:
             print ('Entered incorrect number of observations - restarting...')
-            estimation()  
+            estimation(decimalchoice)  
 
-def binomial():
+def binomial(decimalchoice):
     print ('Enter n')
     n = int(input())
     
@@ -341,18 +324,14 @@ def binomial():
     print ('Enter p')
     p = float(input())
     
-    print ('Enter desired number of decimal places')
-    decimalchoice = str(input())
-
     choose = math.factorial(n) / (math.factorial(x) * math.factorial(n-x))
     result = (choose * (p ** x) * (1 - p)  ** (n - x))
     resultpercent = result * 100
 
     result = formatter(result, decimalchoice)
-    resultpercent = formatter(resultpercent, decimalchoice)
-    
-    print ('Probability: ' + result + ' | ' + (resultpercent) + '%')
+    resultpercent = formatter(resultpercent, str(int(decimalchoice) - 2))
 
+    print ('Probability: ' + result + ' | ' + (resultpercent) + '%')
 
 def outputter(result):
     print ('=========================== RESULT ===========================')
@@ -363,21 +342,23 @@ def formatter(rawNum, decimalchoice):
         rawNum = decimalformat.format(rawNum)
         return rawNum
 
-def calcselection(choice):
+def calcselection(choice, decimalchoice):
     if choice == 1:
-        zscore()
+        zscore(decimalchoice)
     elif choice == 2:
-        bayes()
+        bayes(decimalchoice)
     elif choice == 3: 
-        directadjustment()
+        directadjustment(decimalchoice)
     elif choice == 4:
-        twobytwo()
+        twobytwo(decimalchoice)
     elif choice == 5:
-        histogramfeat()
+        histogramfeat(decimalchoice)
     elif choice == 6:
-        estimation()
+        estimation(decimalchoice)
     elif choice == 7:
-        binomial()
+        binomial(decimalchoice)
+
+
 def chooser():
     print ('Enter the calc you would like to use')
     print ('1 - zscore')
@@ -389,6 +370,9 @@ def chooser():
     print ('7 - Binomial')
     choice = int(input())  
     
-    calcselection(choice)
+    print ('Enter desired number of decimal places')
+    decimalchoice = str(input())
+
+    calcselection(choice, decimalchoice)
 
 chooser()
