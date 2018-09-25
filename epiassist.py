@@ -110,7 +110,6 @@ def zscore(decimalchoice):
     typechoice = str(input())
     zchooser(typechoice)
 
-
 def bayes(decimalchoice):
     print ('====== BAYES CALC ========')
 
@@ -255,7 +254,7 @@ def histogramfeat(decimalchoice):
     print ('Kurtosis: ' + str(kurtosisCalc))
 
 def estimation(decimalchoice):
-    print ('1 - Population parameters | 2 - Sample parameters')
+    print ('1 - Population parameters | 2 - Sample parameters | 3 - CI')
     typechoice = str(input())
 
     if typechoice == '1':
@@ -314,6 +313,39 @@ def estimation(decimalchoice):
             print ('Entered incorrect number of observations - restarting...')
             estimation(decimalchoice)  
 
+    elif typechoice =='3':
+        
+        print('Enter desired CI as a probability')
+        CI = float(input())
+
+        print ('Enter sample SD')
+        sampleSD = float(input())
+
+        print ('Enter sample size')
+        sampleSize = float(input())
+
+        print ('Enter sample point estimate (mean etc.)')
+        sampleEstimate = float(input())
+
+        zPercentile = CI + ((1 - CI) / 2) ## outputs needed percentile to find upper z-score
+        zresult = st.norm.ppf(zPercentile) ## gets zscore at calculated percentile
+    
+        SE = sampleSD / math.sqrt(sampleSize)
+       
+        ## CI = point estimate +/- (z-score * SE)
+        lowCI = sampleEstimate - (zresult * SE)
+        highCI = sampleEstimate + (zresult * SE)
+
+        results = [-zresult, zresult, SE, lowCI, highCI]
+        output = [formatter(i, decimalchoice) for i in results]
+
+        print ('========================== RESULT ==========================')
+        print ('Low Z-score: ' + str(output[0]))
+        print ('High Z-score: ' + str(output[1]))
+        print ('SE: ' + str(output[2]))
+        print ('CI: (' + str(output[3]) + ', ' + str(output[4]) + ')')
+        print ('We are 95% confident that the true population parameter is between ' + str(output[3]) + ' and ' + str(output[4]))
+
 def binomial(decimalchoice):
     print ('Enter n')
     n = int(input())
@@ -357,7 +389,6 @@ def calcselection(choice, decimalchoice):
         estimation(decimalchoice)
     elif choice == 7:
         binomial(decimalchoice)
-
 
 def chooser():
     print ('Enter the calc you would like to use')
