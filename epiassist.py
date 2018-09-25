@@ -319,33 +319,50 @@ def estimation(decimalchoice):
         CI = float(input())
 
         print ('Enter sample SD')
-        sampleSD = float(input())
+        sampleSD = input()
 
         print ('Enter sample size')
-        sampleSize = float(input())
+        sampleSize = input()
 
         print ('Enter sample point estimate (mean etc.)')
-        sampleEstimate = float(input())
+        sampleEstimate = input()
 
-        zPercentile = CI + ((1 - CI) / 2) ## outputs needed percentile to find upper z-score
-        zresult = st.norm.ppf(zPercentile) ## gets zscore at calculated percentile
-    
-        SE = sampleSD / math.sqrt(sampleSize)
-       
-        ## CI = point estimate +/- (z-score * SE)
-        lowCI = sampleEstimate - (zresult * SE)
-        highCI = sampleEstimate + (zresult * SE)
 
-        results = [-zresult, zresult, SE, lowCI, highCI]
-        output = [formatter(i, decimalchoice) for i in results]
+        if sampleSD and sampleSize and sampleEstimate:
+            sampleSD = float(sampleSD)
+            sampleSize = float(sampleSize)
+            sampleEstimate = float(sampleEstimate)
 
-        print ('========================== RESULT ==========================')
-        print ('Low Z-score: ' + str(output[0]))
-        print ('High Z-score: ' + str(output[1]))
-        print ('SE: ' + str(output[2]))
-        print ('CI: (' + str(output[3]) + ', ' + str(output[4]) + ')')
-        print ('We are 95% confident that the true population parameter is between ' + str(output[3]) + ' and ' + str(output[4]))
+            zPercentile = CI + ((1 - CI) / 2) ## outputs needed percentile to find upper z-score
+            zresult = st.norm.ppf(zPercentile) ## gets zscore at calculated percentile
+        
+            SE = sampleSD / math.sqrt(sampleSize)
+        
+            ## CI = point estimate +/- (z-score * SE)
+            lowCI = sampleEstimate - (zresult * SE)
+            highCI = sampleEstimate + (zresult * SE)
 
+            results = [-zresult, zresult, SE, lowCI, highCI]
+            output = [formatter(i, decimalchoice) for i in results]
+
+            print ('========================== RESULT ==========================')
+            print ('Low Z-score: ' + str(output[0]))
+            print ('High Z-score: ' + str(output[1]))
+            print ('SE: ' + str(output[2]))
+            print ('CI: (' + str(output[3]) + ', ' + str(output[4]) + ')')
+            print ('We are 95% confident that the true population parameter is between ' + str(output[3]) + ' and ' + str(output[4]))
+        else:
+            
+            zPercentile = CI + ((1 - CI) / 2) ## outputs needed percentile to find upper z-score
+            zresult = st.norm.ppf(zPercentile) ## gets zscore at calculated percentile   results = [-zresult, zresult, SE, lowCI, highCI]
+            
+            results = [-zresult, zresult]
+            output = [formatter(i, decimalchoice) for i in results]
+
+            print ('========================== RESULT ==========================')
+            print ('Low Z-score: ' + str(output[0]))
+            print ('High Z-score: ' + str(output[1]))
+            
 def binomial(decimalchoice):
     print ('Enter n')
     n = int(input())
@@ -404,6 +421,9 @@ def chooser():
     print ('Enter desired number of decimal places')
     decimalchoice = str(input())
 
-    calcselection(choice, decimalchoice)
+    if decimalchoice:
+        calcselection(choice, decimalchoice)
+    else:
+        calcselection(choice, '4')
 
 chooser()
