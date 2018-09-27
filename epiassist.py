@@ -62,7 +62,7 @@ def zscore(decimalchoice):
         outputter('Z Score: ' + str(zresult))
 
         zscore_area(zresult)
-
+    
     def zscore_area(calc_zscore): 
         if calc_zscore:
             zscore = calc_zscore    
@@ -222,7 +222,7 @@ def twobytwo(decimalchoice):
         nonEIncidence = (C/(C+D))
         popIncidence = (A+C) / totalPop
         PAR = (popIncidence - nonEIncidence) / popIncidence
-        
+
         results = [PVP, PVN, sensitivity, specificity, OR, 
                     RR, eIncidence, nonEIncidence, popIncidence, PAR]
 
@@ -398,6 +398,48 @@ def binomial(decimalchoice):
 
     print ('Probability: ' + result + ' | ' + resultpercent + '%')
 
+def hypothesis(decimalchoice):
+
+    print ('Enter null hypothesis (as a float of the value)')
+    nullHypo = float(input())
+    
+    print ('Enter alternative hypothesis (as a float of the value)')
+    altHypo = float(input())
+
+    print ('Enter alternative hypothesis tails: 1 - one-tail | 2 - two-tail')
+    altTail = int(input())
+
+    if altTail == 1:
+        print ('Enter greater or less than null: 1 - greater | 2 - less than')
+        tailSide = int(input())
+
+    print ('Enter desired decision rule: 1 - test statistic | 2 - p-value | 3 - CI')
+    decisionRule = int(input())
+
+    print ('Enter desired test statistic: 1 - z-score')
+    testStat = int(input())
+      
+    if testStat == 1:
+        zscore()
+    
+    
+    if decisionRule == 1:
+
+    elif decisionRule == 2:
+
+
+        alphaValue = 0.05
+
+        if pValue < alphaValue:
+            print (str(pValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
+        else:
+            print (str(pValue) + ' > ' + str(alphaValue) + ': FTR null hypothesis')
+
+    elif decisionRule == 3:
+
+
+
+
 def outputter(result):
     print ('=========================== RESULT ===========================')
     print (result)
@@ -432,6 +474,7 @@ def chooser():
     print ('5 - Histogram')
     print ('6 - Estimations')
     print ('7 - Binomial')
+    print ('8 - Hypothesis Testing')
     choice = int(input())  
     
     print ('Enter desired number of decimal places')
