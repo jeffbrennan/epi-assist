@@ -168,10 +168,6 @@ def twobytwo(decimalchoice):
             PVP = A / (A + B)
             PVN = D / (C + D)
            
-            ## insert pandas df with 2x2 table
-
-            output = [formatter(i, decimalchoice) for i in [PVP, PVN, sensitivity, specificity]]
-
         elif PVP and PVN:
             
             PVP = float(PVP)
@@ -194,8 +190,12 @@ def twobytwo(decimalchoice):
             sensitivity = A / (A + C)
             specificity = B / (B + D)
 
-            output = [formatter(i, decimalchoice) for i in [PVP, PVN, sensitivity, specificity]]
+        results = [PVP, PVN, sensitivity, specificity, A, B, C, D]
+        output = [formatter(i, decimalchoice) for i in results]
 
+        print ('======================== RESULTS ========================')
+        print (str(output[4]) + '|' + str(output[5]))
+        print (str(output[6]) + '|' + str(output[7]) + '\n')
         print ('Predictive positive value (PVP): ' + str(output[0]))
         print ('Predictive negative value (PVN): ' + str(output[1]))
         print ('Sensitivity: ' + str(output[2]))
@@ -210,18 +210,34 @@ def twobytwo(decimalchoice):
         C = int(input())
         print ('Enter value in cell D')
         D = int(input())
-    
+
+        totalPop = A+B+C+D
         sensitivity = A / (A+C)
         specificity = D / (B+D)
         PVP = A / (A+B)
         PVN = D / (C+D)
+        RR = (A/(A+B)) / (C/(C+D))
+        OR = (A*D) / (B*C)
+        eIncidence = (A/(A+B))
+        nonEIncidence = (C/(C+D))
+        popIncidence = (A+C) / totalPop
+        PAR = (popIncidence - nonEIncidence) / popIncidence
+        
+        results = [PVP, PVN, sensitivity, specificity, OR, 
+                    RR, eIncidence, nonEIncidence, popIncidence, PAR]
 
-        output = [formatter(i, decimalchoice) for i in [PVP, PVN, sensitivity, specificity]]
+        output = [formatter(i, decimalchoice) for i in results]
 
         print ('Predictive positive value (PVP): ' + str(output[0]))
         print ('Predictive negative value (PVN): ' + str(output[1]))
         print ('Sensitivity: ' + str(output[2]))
         print ('Specificity: ' + str(output[3]))
+        print ('Odds Ratio (case control): ' + str(output[4]))
+        print ('Risk Ratio (cohort): ' + str(output[5]))
+        print ('Exposed Incidence: ' + str(output[6]))
+        print ('Unexposed Incidence: ' + str(output[7]))
+        print ('Total population incidence: ' + str(output[8]))
+        print ('Population attributable risk: ' + str(output[9]))
 
 def histogramfeat(decimalchoice):
     print ('Enter histogram data set as a list')
@@ -240,7 +256,6 @@ def histogramfeat(decimalchoice):
         print('Histogram is left-skewed')
     elif mean == median:
         print('Histogram is symmetric')
-
 
     if kurtosisCalc > 3:
         print ('Data is leptokurtic')
@@ -327,7 +342,6 @@ def estimation(decimalchoice):
         print ('Enter sample point estimate (mean etc.)')
         sampleEstimate = input()
 
-
         if sampleSD and sampleSize and sampleEstimate:
             sampleSD = float(sampleSD)
             sampleSize = float(sampleSize)
@@ -351,6 +365,7 @@ def estimation(decimalchoice):
             print ('SE: ' + str(output[2]))
             print ('CI: (' + str(output[3]) + ', ' + str(output[4]) + ')')
             print ('We are 95% confident that the true population parameter is between ' + str(output[3]) + ' and ' + str(output[4]))
+
         else:
             
             zPercentile = CI + ((1 - CI) / 2) ## outputs needed percentile to find upper z-score
@@ -364,6 +379,7 @@ def estimation(decimalchoice):
             print ('High Z-score: ' + str(output[1]))
             
 def binomial(decimalchoice):
+    
     print ('Enter n')
     n = int(input())
     
@@ -380,7 +396,7 @@ def binomial(decimalchoice):
     result = formatter(result, decimalchoice)
     resultpercent = formatter(resultpercent, str(int(decimalchoice) - 2))
 
-    print ('Probability: ' + result + ' | ' + (resultpercent) + '%')
+    print ('Probability: ' + result + ' | ' + resultpercent + '%')
 
 def outputter(result):
     print ('=========================== RESULT ===========================')
