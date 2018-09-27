@@ -76,8 +76,8 @@ def zscore(decimalchoice):
 
         areacalc = formatter(areacalc, decimalchoice)
         areapercent = formatter(areapercent, decimalchoice)    
-
         outputter(('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' ))
+        return areacalc
 
     def zscore_observation():
        
@@ -410,7 +410,7 @@ def hypothesis(decimalchoice):
     altTail = int(input())
 
     if altTail == 1:
-        print ('Enter greater or less than null: 1 - greater | 2 - less than')
+        print ('Enter greater or less than null: 1 - greater (upper) | 2 - less than (lower')
         tailSide = int(input())
 
     print ('Enter desired decision rule: 1 - test statistic | 2 - p-value | 3 - CI')
@@ -418,26 +418,41 @@ def hypothesis(decimalchoice):
 
     print ('Enter desired test statistic: 1 - z-score')
     testStat = int(input())
-      
-    if testStat == 1:
-        zscore()
-    
-    
+
     if decisionRule == 1:
+        zscore(decimalchoice)
 
-    elif decisionRule == 2:
+    if altTail == 2:
+        testValue = 2 * zscore(decimalchoice)
+    else:
+        testValue = 2 * zscore(decimalchoice)
+        
+
+    def hypoDecision (testValue, alphaValue, altTail, tailSide):
+        if altTail == 1:
+            if tailSide == 1:
+                if testValue > alphaValue:
+                    return(str(testValue) + ' > ' + str(alphaValue) + ': Reject null hypothesis')
+                else:
+                    return(str(testValue) + ' < ' + str(alphaValue) + ': FTR null hypothesis')
+            elif tailSide == 2:
+                if testValue < alphaValue:
+                    return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
+                else:
+                    return(str(testValue) + ' > ' + str(alphaValue) + ': FTR null hypothesis')
+        elif altTail == 2:
+            if abs(testValue) > abs(alphaValue):
+                return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
+            else:
+                return(str(-testValue) + ' <= ' + str(alphaValue) + ' <= ' + str(testValue) + ': FTR null hypothesis')
+
+        
+        
+    
 
 
-        alphaValue = 0.05
-
-        if pValue < alphaValue:
-            print (str(pValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
-        else:
-            print (str(pValue) + ' > ' + str(alphaValue) + ': FTR null hypothesis')
-
-    elif decisionRule == 3:
-
-
+        # alphaValue = 0.05
+   
 
 
 def outputter(result):
