@@ -47,7 +47,7 @@ def directadjustment (decimalchoice):
 
     outputter(('Location 1: ' + str(adjustedrate1) + popfactortext + ' | Location 2: ' + str(adjustedrate2) + popfactortext))
     
-def zscore(decimalchoice):
+def zScoreCalcs(decimalchoice):
     def zscore_value():
         print ('Enter the observation')
         Obs = float(input())
@@ -68,16 +68,32 @@ def zscore(decimalchoice):
             zscore = calc_zscore    
         else:
             print ('Enter your desired Z score')
-            zscore = float(input())
-            zscore = float(formatter(zscore, '2')) ## biostats class uses table with 2 decimal place z scores
+            zscore = input()
 
-        areacalc = st.norm.cdf(zscore)
-        areapercent = areacalc * 100
+            print ('Enter your desired area')
+            area = input()
 
-        areacalc = formatter(areacalc, decimalchoice)
-        areapercent = formatter(areapercent, decimalchoice)    
-        outputter(('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' ))
-        return areacalc
+        if zscore:
+            zscore = round(float(zscore), 2) ## biostats class uses table with 2 decimal place z scores
+
+            areacalc = st.norm.cdf(zscore)
+            inversearea = 1 - areacalc
+            areapercent = areacalc * 100
+            areacalc = formatter(areacalc, decimalchoice)
+            inversearea = formatter(inversearea, decimalchoice)
+            areapercent = formatter(areapercent, decimalchoice)    
+            outputter(('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' +
+                        '|Remaining area: ' + str(inversearea)))
+
+            return areacalc
+
+        elif area:
+            area = float(area)
+            zresult = st.norm.ppf(area)
+            zresult = formatter(zresult, decimalchoice)
+            print (zresult)
+            
+            return zresult
 
     def zscore_observation():
        
@@ -95,6 +111,43 @@ def zscore(decimalchoice):
 
         print ('Observation at the desired percentile: ' + observation)
 
+    def confidence_interval(calc_SE):
+        print ('Enter the point estimate')
+        pointEstimate = float(input())
+        
+        if calc_SE:
+            SE = calc_SE 
+        else:
+            
+            print ('Enter the standard deviation')
+            SD = float(input())
+            print ('Enter the sample size')
+            sampleSize = float(input())
+
+            SE = SD / math.sqrt(sampleSize)
+
+        print ('Enter desired % confidence - 1: 90 | 2: 95 | 3: 99 | 4: Custom')
+        choice = str(input())
+
+        if choice == '1':
+            z = 1.645
+        elif choice == '2':
+            z = 1.96
+        elif choice =='3':
+            z = 2.58
+        elif choice == '4':
+            z = zscore_area(None)
+
+        CIlow = pointEstimate - (z * SE)
+        CIhigh = pointEstimate + (z * SE)
+        marginError = (CIhigh - CIlow) / 2
+
+        results = [CIlow, CIhigh, marginError]
+        output = [formatter(i, decimalchoice) for i in results]
+
+        print ('There is a 95% chance that the true population [parameter]' +  
+        'lies between the interval of ' + output[0] + ' and' + output[1])
+    
     def zchooser(choice):
         if choice == '1':
             zscore_value()
@@ -102,13 +155,47 @@ def zscore(decimalchoice):
             zscore_area(None)
         elif choice == '3':
             zscore_observation()
+        elif choice == '4':
+            confidence_interval(None)
    
     print ('================== Z SCORE FINDER ================== ')
 
-    print ('1 - Z Score | 2 - Area given Z Score | 3 - Obs given percentile')
+    print ('1 - Z Score | 2 - Area given Z Score | 3 - Obs given percentile | 4 - Confidence Interval')
 
     typechoice = str(input())
     zchooser(typechoice)
+
+def zscore_area(decimalchoice, calc_zscore): 
+    if calc_zscore:
+        zscore = calc_zscore    
+    else:
+        print ('Enter your desired Z score')
+        zscore = input()
+
+        print ('Enter your desired area')
+        area = input()
+
+    if zscore:
+        zscore = round(float(zscore), 2) ## biostats class uses table with 2 decimal place z scores
+
+        areacalc = st.norm.cdf(zscore)
+        inversearea = 1 - areacalc
+        areapercent = areacalc * 100
+        areacalc = formatter(areacalc, decimalchoice)
+        inversearea = formatter(inversearea, decimalchoice)
+        areapercent = formatter(areapercent, decimalchoice)    
+        outputter(('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' +
+                    '|Remaining area: ' + str(inversearea)))
+
+        return areacalc
+
+    elif area:
+        area = float(area)
+        zresult = st.norm.ppf(area)
+        zresult = formatter(zresult, decimalchoice)
+        print (zresult)
+        
+        return zresult
 
 def bayes(decimalchoice):
     print ('====== BAYES CALC ========')
@@ -399,61 +486,52 @@ def binomial(decimalchoice):
     print ('Probability: ' + result + ' | ' + resultpercent + '%')
 
 def hypothesis(decimalchoice):
+    print ('================== HYPOTHESIS TESTER ================== ')
 
-    print ('Enter null hypothesis (as a float of the value)')
-    nullHypo = float(input())
+    def tailTest(tailChoice, tailSide):
+        popSD =  sampleSD / math.sqrt(sampleSize)
     
-    print ('Enter alternative hypothesis (as a float of the value)')
-    altHypo = float(input())
-
-    print ('Enter alternative hypothesis tails: 1 - one-tail | 2 - two-tail')
-    altTail = int(input())
-
-    if altTail == 1:
-        print ('Enter greater or less than null: 1 - greater (upper) | 2 - less than (lower')
-        tailSide = int(input())
-
-    print ('Enter desired decision rule: 1 - test statistic | 2 - p-value | 3 - CI')
-    decisionRule = int(input())
-
-    print ('Enter desired test statistic: 1 - z-score')
-    testStat = int(input())
-
-    if decisionRule == 1:
-        zscore(decimalchoice)
-
-    if altTail == 2:
-        testValue = 2 * zscore(decimalchoice)
-    else:
-        testValue = 2 * zscore(decimalchoice)
+        zValue = (sampleMean - nullHypo) / popSD
+        zArea = zscore_area(decimalchoice, zValue)
         
+        if tailChoice == '1':
+            pValue = round(1 - float(zArea), int(decimalchoice))
+        elif tailChoice == '2':
+            pValue = round(2 * (1 - float(zArea)), int(decimalchoice))
+            print (pValue)
 
-    def hypoDecision (testValue, alphaValue, altTail, tailSide):
-        if altTail == 1:
-            if tailSide == 1:
+        print(hypoDecision(pValue, alphaValue, tailChoice, tailSide))
+    def hypoDecision(testValue, alphaValue, tailChoice, tailSide):
+        if tailChoice == '1':
+            if tailSide == '1':
                 if testValue > alphaValue:
                     return(str(testValue) + ' > ' + str(alphaValue) + ': Reject null hypothesis')
                 else:
                     return(str(testValue) + ' < ' + str(alphaValue) + ': FTR null hypothesis')
-            elif tailSide == 2:
+            elif tailSide == '2':
                 if testValue < alphaValue:
                     return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
                 else:
                     return(str(testValue) + ' > ' + str(alphaValue) + ': FTR null hypothesis')
-        elif altTail == 2:
-            if abs(testValue) > abs(alphaValue):
+        elif tailChoice == '2':
+            if abs(testValue) < abs(alphaValue):
                 return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
             else:
                 return(str(-testValue) + ' <= ' + str(alphaValue) + ' <= ' + str(testValue) + ': FTR null hypothesis')
-
-        
-        
     
+    tailChoice = str(input('1: One-tailed test | 2: Two-tailed test: '))
+    nullHypo = float(input('Enter null hypothesis value: '))
+    sampleSize = float(input('Enter sample size: '))
+    sampleMean = float(input('Enter sample mean: '))
+    sampleSD = float(input('Enter sample SD: '))
+    alphaValue = float(input('Enter desired significance: '))
 
-
-        # alphaValue = 0.05
-   
-
+    if tailChoice == '1':
+        print ('Enter greater or less than null: 1 - greater (upper) | 2 - less than (lower)')
+        tailSide = str(input())
+        tailTest(tailChoice, tailSide)
+    elif tailChoice == '2':
+        tailTest(tailChoice, None)
 
 def outputter(result):
     print ('=========================== RESULT ===========================')
@@ -466,7 +544,7 @@ def formatter(rawNum, decimalchoice):
 
 def calcselection(choice, decimalchoice):
     if choice == 1:
-        zscore(decimalchoice)
+        zScoreCalcs(decimalchoice)
     elif choice == 2:
         bayes(decimalchoice)
     elif choice == 3: 
@@ -479,6 +557,8 @@ def calcselection(choice, decimalchoice):
         estimation(decimalchoice)
     elif choice == 7:
         binomial(decimalchoice)
+    elif choice == 8:
+        hypothesis(decimalchoice)
 
 def chooser():
     print ('Enter the calc you would like to use')
