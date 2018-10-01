@@ -1,6 +1,7 @@
 import math
 import scipy.stats as st
 import numpy as np
+import pandas as pd
 
 def directadjustment (roundingValue): 
     
@@ -204,8 +205,6 @@ def twobytwo(roundingValue):
             BD = popsize - AC
             D = BD * specificity
             B = BD - D
-
-            PVP, PVN = PVP_PVN(A, B, C, D)
            
         elif PVP and PVN:
             
@@ -223,25 +222,23 @@ def twobytwo(roundingValue):
             D = CD * PVN
             C = CD - D
 
-            sensitivity, specificity = sens_spec(A, B, C, D)
-            RR, OR = RR_OR(A, B, C, D)
 
-        results = [PVP, PVN, sensitivity, specificity, A, B, C, D]
-        output = [round(i, roundingValue) for i in results]
-        
-        dividerLength = len(str(output[4])) + len(str(output[5])) + 3
+        # results = [PVP, PVN, sensitivity, specificity, A, B, C, D]
+        # output = [round(i, roundingValue) for i in results]
 
-        print ('======================== RESULTS ========================')
-        print ('_' * dividerLength)
-        print ('|' + str(output[4]) + '|' + str(output[5]) + '|')
-        print ('-' * dividerLength)
-        print ('|' + str(output[6]) + '|' + str(output[7]) + '|')
-        print ('_' * dividerLength + '\n')
+        # dividerLength = len(str(output[4])) + len(str(output[5])) + 3
 
-        print ('Predictive positive value (PVP): ' + str(output[0]))
-        print ('Predictive negative value (PVN): ' + str(output[1]))
-        print ('Sensitivity: ' + str(output[2]))
-        print ('Specificity: ' + str(output[3]))
+        # print ('======================== RESULTS ========================')
+        # print ('_' * dividerLength)
+        # print ('|' + str(output[4]) + '|' + str(output[5]) + '|')
+        # print ('-' * dividerLength)
+        # print ('|' + str(output[6]) + '|' + str(output[7]) + '|')
+        # print ('_' * dividerLength + '\n')
+
+        # print ('Predictive positive value (PVP): ' + str(output[0]))
+        # print ('Predictive negative value (PVN): ' + str(output[1]))
+        # print ('Sensitivity: ' + str(output[2]))
+        # print ('Specificity: ' + str(output[3]))
 
 
     elif typechoice == '2':
@@ -250,27 +247,52 @@ def twobytwo(roundingValue):
         C = int(input('Enter value in cell C: '))
         D = int(input('Enter value in cell D: '))
     
-        RR, OR = RR_OR(A, B, C, D)
-        eIncidence, nonEIncidence, popIncidence, PAR = incidence_2x2(A, B, C, D)
+    
+    sensitivity, specificity = sens_spec(A, B, C, D)
+    PVP, PVN = PVP_PVN(A, B, C, D)
+    RR, OR = RR_OR(A, B, C, D)
+    RR, OR = RR_OR(A, B, C, D)
+    eIncidence, nonEIncidence, popIncidence, PAR = incidence_2x2(A, B, C, D)
 
-        results = [PVP, PVN, sensitivity, specificity, OR, 
-                    RR, eIncidence, nonEIncidence, popIncidence, PAR]
+    results = [PVP, PVN, sensitivity, specificity, OR, RR, eIncidence,
+        nonEIncidence, popIncidence, PAR, A, B, C, D]
 
-        output = [round(i, roundingValue) for i in results]
+    output = [round(i, roundingValue) for i in results]
 
+    errorChoice = str(input('Does the table have information bias (1 - y|2 - n'))
+    if errorChoice == '1':
+        errorRR, errorOR = error_2x2(A, B, C, D)
+
+        errorRR = round(errorRR, roundingValue)
+        errorOR = round(errorOR, roundingValue)
+    else:
+        errorRR = errorOR = 'N/A: No information bias declared'
+
+    col1 = [A,C]
+    col2 = [B,D]
+
+    tableData = {'+':col1,'-':col2}
+    twoTable = pd.DataFrame(tableData, index=['Exposed', 'Nonexposed'])
+
+    print ('======================== RESULTS ========================')
+
+    print (twoTable)
+    
         ## consider converting to dictionary
-        print ('Predictive positive value (PVP): ' + str(output[0]))
-        print ('Predictive negative value (PVN): ' + str(output[1]))
-        print ('Sensitivity: ' + str(output[2]))
-        print ('Specificity: ' + str(output[3]))
-        print ('Odds Ratio (case control): ' + str(output[4]))
-        print ('Risk Ratio (cohort): ' + str(output[5]))
-        print ('Exposed Incidence: ' + str(output[6]))
-        print ('Unexposed Incidence: ' + str(output[7]))
-        print ('Total population incidence: ' + str(output[8]))
-        print ('Population attributable risk: ' + str(output[9]))
+    print ('\n' + 'Predictive positive value (PVP): ' + str(output[0]))
+    print ('Predictive negative value (PVN): ' + str(output[1]))
+    print ('Sensitivity: ' + str(output[2]))
+    print ('Specificity: ' + str(output[3]))
+    print ('Odds Ratio (case control): ' + str(output[4]))
+    print ('Error adjusted OR: ' + str(errorOR))
+    print ('Risk Ratio (cohort): ' + str(output[5]))
+    print ('Error adjusted RR: ' + str(errorRR))
+    print ('Exposed Incidence: ' + str(output[6]))
+    print ('Unexposed Incidence: ' + str(output[7]))
+    print ('Total population incidence: ' + str(output[8]))
+    print ('Population attributable risk: ' + str(output[9]))
 
-        return results
+    return results
 
 def RR_OR(A, B, C, D):
 
@@ -300,7 +322,48 @@ def incidence_2x2(A, B, C, D):
     PAR = (popIncidence - nonEIncidence) / popIncidence
 
     return eIncidence, nonEIncidence, popIncidence, PAR
-    
+
+def error_2x2(A, B, C, D):
+
+    errorType = str(input('Enter error type (1 - nondifferential |2 - differential): '))
+    errorRate = float(input('Enter misclassification rate'))
+    errorDirection = str(input('Enter error direction (1 - E->NE |2 - NE->E): '))
+   
+    if errorType == '1' and errorDirection == '1':
+        A -= (A*errorRate)
+        B -= (B*errorRate)
+        C += (A*errorRate)
+        D += (B*errorRate)
+
+    if errorType == '1' and errorDirection == '2':
+        
+        A += (C*errorRate)
+        B += (D*errorRate)
+        C -= (C*errorRate)
+        D -= (D*errorRate)
+
+    if errorType == '2':
+        groupSelector = str(input('Enter differential group (1 - cases|2- controls)'))
+
+        if groupSelector == '1' and errorDirection == '1':
+            A -= (A*errorRate)
+            C += (A*errorRate)
+
+        elif groupSelector == '1' and errorDirection == '2':
+            A+= (C*errorRate)
+            C-= (C*errorRate)
+
+        elif groupSelector == '2' and errorDirection == '1':
+            B -= (B*errorRate)
+            D += (B*errorRate)
+
+        elif groupSelector == '2' and errorDirection == '2':
+            B += (D*errorRate)
+            D -= (D*errorRate)
+            
+    errorRR, errorOR = RR_OR(A, B, C, D)
+    return errorRR, errorOR
+
 def histogramfeat(roundingValue):
     print ('Enter histogram data set as a list')
     data = [float(x) for x in input().split()]
