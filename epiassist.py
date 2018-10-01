@@ -35,7 +35,7 @@ def directadjustment (roundingValue):
     return adjustedRate1, adjustedrate2
 
 
-##Zscore calculations##
+### Zscore calculations - 1 ###
 def zScoreCalcs(roundingValue):
     
     print ('================== Z SCORE FINDER ================== ')
@@ -44,6 +44,7 @@ def zScoreCalcs(roundingValue):
 
     typechoice = str(input())
     zchooser(roundingValue, typechoice)
+
 def zchooser(roundingValue, choice):
     
     if choice == '1':
@@ -56,6 +57,7 @@ def zchooser(roundingValue, choice):
         zscore_observation(roundingValue)
     elif choice == '5':
         confidence_interval(roundingValue, None)
+
 def zscore_value(roundingValue):
     
     Obs = float(input('Enter the observation: '))
@@ -152,7 +154,7 @@ def confidence_interval(roundingValue, calc_SE):
      ') ± ' + str(output[2]))
 
     return results
-       
+### Bayes - 2 ###      
 def bayes(roundingValue):
     print ('====== BAYES CALC ========')
     print('Enter values as a proportion')
@@ -203,8 +205,7 @@ def twobytwo(roundingValue):
             D = BD * specificity
             B = BD - D
 
-            PVP = A / (A + B)
-            PVN = D / (C + D)
+            PVP, PVN = PVP_PVN(A, B, C, D)
            
         elif PVP and PVN:
             
@@ -222,12 +223,12 @@ def twobytwo(roundingValue):
             D = CD * PVN
             C = CD - D
 
-            sensitivity = A / (A + C)
-            specificity = B / (B + D)
-
+            sensitivity, specificity = sens_spec(A, B, C, D)
+            RR, OR = RR_OR(A, B, C, D)
 
         results = [PVP, PVN, sensitivity, specificity, A, B, C, D]
         output = [round(i, roundingValue) for i in results]
+        
         dividerLength = len(str(output[4])) + len(str(output[5])) + 3
 
         print ('======================== RESULTS ========================')
@@ -248,29 +249,16 @@ def twobytwo(roundingValue):
         B = int(input('Enter value in cell B: '))
         C = int(input('Enter value in cell C: '))
         D = int(input('Enter value in cell D: '))
-
-        totalPop = A+B+C+D
-
-        sensitivity = A / (A+C)
-        specificity = D / (B+D)
-
-        PVP = A / (A+B)
-        PVN = D / (C+D)
-
-        RR = (A/(A+B)) / (C/(C+D))
-        OR = (A*D) / (B*C)
-
-        eIncidence = (A/(A+B))
-        nonEIncidence = (C/(C+D))
-        popIncidence = (A+C) / totalPop
-
-        PAR = (popIncidence - nonEIncidence) / popIncidence
+    
+        RR, OR = RR_OR(A, B, C, D)
+        eIncidence, nonEIncidence, popIncidence, PAR = incidence_2x2(A, B, C, D)
 
         results = [PVP, PVN, sensitivity, specificity, OR, 
                     RR, eIncidence, nonEIncidence, popIncidence, PAR]
 
         output = [round(i, roundingValue) for i in results]
 
+        ## consider converting to dictionary
         print ('Predictive positive value (PVP): ' + str(output[0]))
         print ('Predictive negative value (PVN): ' + str(output[1]))
         print ('Sensitivity: ' + str(output[2]))
@@ -284,6 +272,35 @@ def twobytwo(roundingValue):
 
         return results
 
+def RR_OR(A, B, C, D):
+
+    RR = (A/(A+B)) / (C/(C+D))
+    OR = (A*D) / (B*C)
+
+    return RR, OR
+
+def sens_spec(A, B, C, D):
+    sensitivity = A / (A+C)
+    specificity = D / (B+D)
+
+    return sensitivity, specificity
+
+def PVP_PVN(A, B, C, D):
+    PVP = A / (A+B)
+    PVN = D / (C+D)
+
+    return PVP, PVN
+
+def incidence_2x2(A, B, C, D):
+    totalPop = A+B+C+D
+   
+    eIncidence = (A/(A+B))
+    nonEIncidence = (C/(C+D))
+    popIncidence = (A+C) / totalPop
+    PAR = (popIncidence - nonEIncidence) / popIncidence
+
+    return eIncidence, nonEIncidence, popIncidence, PAR
+    
 def histogramfeat(roundingValue):
     print ('Enter histogram data set as a list')
     data = [float(x) for x in input().split()]
@@ -412,7 +429,7 @@ def hypothesis(roundingValue):
         print(hypoDecision(pValue, alphaValue, tailChoice, tailSide))
 
     def hypoDecision(testValue, alphaValue, tailChoice, tailSide):
-        
+
         if tailChoice == '1':
             if tailSide == '1':
                 if testValue > alphaValue:
@@ -444,22 +461,22 @@ def hypothesis(roundingValue):
     elif tailChoice == '2':
         tailTest(tailChoice, None)
 
-def calcselection(choice, roundingValue):
-    if choice == 1:
+def calcselection(calcChoice, roundingValue):
+    if calcChoice == 1:
         zScoreCalcs(roundingValue)
-    elif choice == 2:
+    elif calcChoice == 2:
         bayes(roundingValue)
-    elif choice == 3: 
+    elif calcChoice == 3: 
         directadjustment(roundingValue)
-    elif choice == 4:
+    elif calcChoice == 4:
         twobytwo(roundingValue)
-    elif choice == 5:
+    elif calcChoice == 5:
         histogramfeat(roundingValue)
-    elif choice == 6:
+    elif calcChoice == 6:
         estimation(roundingValue)
-    elif choice == 7:
+    elif calcChoice == 7:
         binomial(roundingValue)
-    elif choice == 8:
+    elif calcChoice == 8:
         hypothesis(roundingValue)
 
 def chooser():
@@ -472,13 +489,14 @@ def chooser():
     print ('6 - Estimations')
     print ('7 - Binomial')
     print ('8 - Hypothesis Testing')
-    choice = int(input())  
+    calcChoice = int(input())  
     
     roundingValue = int(input('Round result to how many decimal places? '))
 
     if roundingValue:
-        calcselection(choice, roundingValue)
+        calcselection(calcChoice, roundingValue)
     else:
-        calcselection(choice, '4')
+        calcselection(calcChoice, 4)
+
 resultsDivider = ('======================== RESULTS ========================')
 chooser()
