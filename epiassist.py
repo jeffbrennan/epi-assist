@@ -67,15 +67,15 @@ def zscore_value(roundingValue):
     Mean = float(input('Enter the mean: '))
     SD = float(input('Enter SD: '))
 
-    zresult = (Obs - Mean) / SD
-    zresult = float(round(zresult, roundingValue))
+    zResult = (Obs - Mean) / SD
+    zResult = float(round(zResult, roundingValue))
 
     print (resultsDivider)
-    print('Z Score: ' + str(zresult))
+    print('Z Score: ' + str(zResult))
 
-    zscore_toarea(roundingValue, zresult)
+    zscore_toarea(roundingValue, zResult)
 
-    return zresult
+    return zResult
 
 def zscore_toarea(roundingValue, calc_zscore): 
     if calc_zscore:
@@ -96,14 +96,20 @@ def zscore_toarea(roundingValue, calc_zscore):
 
     return areacalc
 
-def area_tozscore(roundingValue):
-    area = input('Enter your desired area (returns zscore): ')
-    area = float(area)
-    zresult = st.norm.ppf(area)
-    zresult = round(zresult, roundingValue)
-    print (zresult)
+def area_tozscore(roundingValue, percentile):
+    area = input('Enter your desired area, blank if auto (returns zscore): ')
+    if area:
+        area = float(area)
+    else: 
+        area = percentile
     
-    return zresult
+    if area > 1:
+        zResult = st.norm.ppf(percentile/100)
+    else:
+        zResult = st.norm.ppf(percentile)
+
+    print (zResult)
+    return zResult
 
 def zscore_observation(roundingValue): ## returns observation at a given percentile
     
@@ -111,12 +117,9 @@ def zscore_observation(roundingValue): ## returns observation at a given percent
     SD = float(input('Enter SD: '))
     Mean = float(input('Enter mean: '))
 
-    if percentile > 1:
-        zresult = st.norm.ppf(percentile/100)
-    else:
-        zresult = st.norm.ppf(percentile)
+    zResult = area_tozscore(roundingValue, percentile)
 
-    observation = (zresult * SD) + Mean
+    observation = (zResult * SD) + Mean
     observation = round(observation, roundingValue)
 
     print (str(percentile) + ' percentile observation: ' + str(observation))
@@ -503,7 +506,7 @@ def hypothesis(roundingValue):
     sampleSize = float(input('Enter sample size: '))
     sampleMean = float(input('Enter sample mean: '))
     sampleSD = float(input('Enter sample SD: '))
-    alphaValue = float(input('Enter desired significance: '))
+    alphaValue = float(input('Enter desired significance (0.10|0.05|0.01): '))
 
     if tailChoice == '1':
         print ('Enter greater or less than null: 1 - greater (upper) | 2 - less than (lower)')
