@@ -55,8 +55,8 @@ except ValueError:
 
 print ('Number of subjects entered: ' + str(len(inputList)))
 
-print ('Which method of randomization would you like to use? 1 - Complete |\
-         2 - Blocks | 3 - Hierarchical')
+print ('Which method of randomization would you like to use? 1 - Complete |'+
+        '2 - Blocks | 3 - Hierarchical')
 choice = str(input())
 
 chooser(inputList, choice)
