@@ -9,18 +9,20 @@ def directadjustment (roundingValue):
     bins = int(input('Enter number of groups: '))
     popFactor = int(input('Enter population factor eg 1000, 10000...'))
 
-    print ('Enter location 1 rates separated by a space')
+    print ('Enter location 1 rates separated by a space:')
     loc1Rates = [float(x) for x in input().split()]
 
-    print ('Enter location 2 rates separated by a space')
+    print ('Enter location 2 rates separated by a space:')
     loc2Rates = [float(x) for x in input().split()]
 
-    print ('Enter Standard populations separated by a space')
+    print ('Enter Standard populations separated by a space:') ## might help to have explanation on this point
     standardPop = [float(x) for x in input().split()]
 
     totalStandardPop = sum(standardPop)
     
-    expectedPop1 = [(loc1Rates[i] * standardPop[i]) for i in range(bins)]
+    ##multiples the condition rates by the population in the standard group
+    ##saves as list, then sums and creates rate by comparing expected to total
+    expectedPop1 = [(loc1Rates[i] * standardPop[i]) for i in range(bins)] 
     totalExpected1 = sum(expectedPop1)
     adjustedRate1 = (totalExpected1 / totalStandardPop) * popFactor
     
@@ -31,22 +33,22 @@ def directadjustment (roundingValue):
     popFactorText = ' per ' + str(popFactor) + ' persons'
 
     print (resultsDivider)
-    print('Location 1: ' + str(adjustedRate1) + popFactorText + ' | Location 2: ' + str(adjustedrate2) + popFactorText)
+    print('Location 1: ' + str(adjustedRate1) + popFactorText + 
+        ' | Location 2: ' + str(adjustedrate2) + popFactorText)
 
     return adjustedRate1, adjustedrate2
 
-
 ### Zscore calculations - 1 ###
-def zScoreCalcs(roundingValue):
+def zscore_calcs(roundingValue):
     
     print ('================== Z SCORE FINDER ================== ')
     print ('1 - Z Score | 2 - Z Score -> Area | 3 - Area -> Z Score | ' +
             '4 - Obs given percentile | 5 - Confidence Interval')
 
-    typechoice = str(input())
-    zchooser(roundingValue, typechoice)
+    typeChoice = str(input())
+    zscore_chooser(roundingValue, typeChoice)
 
-def zchooser(roundingValue, choice):
+def zscore_chooser(roundingValue, choice):
     
     if choice == '1':
         zscore_value(roundingValue)
@@ -118,6 +120,7 @@ def zscore_observation(roundingValue): ## returns observation at a given percent
     observation = round(observation, roundingValue)
 
     print (str(percentile) + ' percentile observation: ' + str(observation))
+    return observation
 
 def confidence_interval(roundingValue, calc_SE):
     
@@ -155,6 +158,7 @@ def confidence_interval(roundingValue, calc_SE):
      ') ± ' + str(output[2]))
 
     return results
+
 ### Bayes - 2 ###      
 def bayes(roundingValue):
     print ('====== BAYES CALC ========')
@@ -180,9 +184,9 @@ def twobytwo(roundingValue):
     print('====== 2x2 TABLE SOLVER ======')
 
     print ('1 - table empty | 2 - table full')
-    typechoice = str(input())
+    typeChoice = str(input())
 
-    if typechoice == '1':
+    if typeChoice == '1':
         print ('Enter sensitivity and specificity or PVP and PVN')
         sensitivity = input('Enter sensitivity: ')
         specificity = input('Enter specificity: ')
@@ -222,17 +226,19 @@ def twobytwo(roundingValue):
             D = CD * PVN
             C = CD - D
 
-    elif typechoice == '2':
+    elif typeChoice == '2':
         
         A = int(input('Enter value in cell A: '))
         B = int(input('Enter value in cell B: '))
         C = int(input('Enter value in cell C: '))
         D = int(input('Enter value in cell D: '))
     
+    ## calls helper functions to calculate basic values
     sensitivity, specificity = sens_spec(A, B, C, D)
     PVP, PVN = PVP_PVN(A, B, C, D)
     RR, OR = RR_OR(A, B, C, D)
     RR, OR = RR_OR(A, B, C, D)
+
     eIncidence, nonEIncidence, popIncidence, AR, PAR = incidence_2x2(A, B, C, D)
 
     results = [PVP, PVN, sensitivity, specificity, OR, RR, eIncidence,
@@ -247,7 +253,7 @@ def twobytwo(roundingValue):
         errorRR = round(errorRR, roundingValue)
         errorOR = round(errorOR, roundingValue)
     else:
-        errorRR = errorOR = 'N/A: No information bias declared'
+        errorRR = 'N/A: No information bias declared'
 
     col1 = [A,C]
     col2 = [B,D]
@@ -325,7 +331,7 @@ def error_2x2(A, B, C, D):
         D -= (D*errorRate)
 
     if errorType == '2':
-        groupSelector = str(input('Enter differential group (1 - cases|2- controls)'))
+        groupSelector = str(input('Enter differential group (1 - cases|2- controls): '))
 
         if groupSelector == '1' and errorDirection == '1':
             A -= (A*errorRate)
@@ -378,23 +384,17 @@ def histogramfeat(roundingValue):
 
 def estimation(roundingValue):
     print ('1 - Population parameters | 2 - Sample parameters')
-    typechoice = str(input())
+    typeChoice = str(input())
 
-    if typechoice == '1':
-        sampleN = int(input('Enter number in sample: '))
+    if typeChoice == '1':
+        sampleSize = int(input('Enter number in sample: '))
         
-        print('Enter observations for all N in sample')
-        samplevalues = [float(x) for x in input().split()]
+        print('Enter observations for all N in sample separated by a space')
+        sampleValues = [float(x) for x in input().split()]
 
-        if len(samplevalues) == sampleN:
+        if len(sampleValues) == sampleSize:
      
-            mean = sum(samplevalues) / sampleN
-            
-            squareDif = [(i - mean)**2 for i in samplevalues]
-            variance = sum(squareDif) / sampleN
-
-            SD = math.sqrt(variance)
-            SE = variance / (math.sqrt(sampleN))
+            mean, variance, SD, SE = listCalculations(sampleValues, sampleSize)
 
             results = [mean, variance, SD, SE]
             output = [round(i, roundingValue) for i in results]
@@ -408,22 +408,16 @@ def estimation(roundingValue):
             print ('Entered incorrect number of observations - restarting...')
             estimation(roundingValue)
 
-    elif typechoice == '2':
+    elif typeChoice == '2':
         
-        sampleN = int(input('Enter number in sample: '))
+        sampleSize = int(input('Enter number in sample: '))
 
         print('Enter observations for all N in sample')
-        samplevalues = [float(x) for x in input().split()]
+        sampleValues = [float(x) for x in input().split()]
         
-        if len(samplevalues) == sampleN:
-            mean = sum(samplevalues) / sampleN
-            
-            squareDif = [(i - mean)**2 for i in samplevalues]
-            variance = sum(squareDif) / (sampleN - 1)
+        if len(sampleValues) == sampleSize:
 
-            SD = math.sqrt(variance)
-            
-            SE = variance / (math.sqrt(sampleN))
+            mean, variance, SD, SE = listCalculations(sampleValues, sampleSize)
 
             results = [mean, variance, SD, SE]
             output = [round(i, roundingValue) for i in results]
@@ -438,7 +432,19 @@ def estimation(roundingValue):
         else:
             print ('Entered incorrect number of observations - restarting...')
             estimation(roundingValue)  
-           
+
+def listCalculations (numberList, sampleSize):
+
+    mean = sum(numberList) / sampleSize
+
+    squareDif = [(i - mean)**2 for i in numberList]
+    variance = sum(squareDif) / sampleSize
+
+    SD = math.sqrt(variance)
+    SE = variance / (math.sqrt(sampleSize))
+
+    return mean, variance, SD, SE
+
 def binomial(roundingValue):
     
     n = int(input('Enter n: '))
@@ -508,7 +514,7 @@ def hypothesis(roundingValue):
 
 def calcselection(calcChoice, roundingValue):
     if calcChoice == 1:
-        zScoreCalcs(roundingValue)
+        zscore_calcs(roundingValue)
     elif calcChoice == 2:
         bayes(roundingValue)
     elif calcChoice == 3: 
