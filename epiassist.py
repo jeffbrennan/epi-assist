@@ -55,7 +55,7 @@ def zscore_chooser(roundingValue, choice):
     elif choice == '2':
         zscore_toarea(roundingValue, None)
     elif choice == '3':
-        area_tozscore(roundingValue)
+        area_tozscore(roundingValue, None)
     elif choice == '4':
         zscore_observation(roundingValue)
     elif choice == '5':
@@ -355,12 +355,13 @@ def error_2x2(A, B, C, D):
     errorRR, errorOR = RR_OR(A, B, C, D)
     return errorRR, errorOR
 
-def histogramfeat(roundingValue):
+def histogram_feat(roundingValue):
     print ('Enter histogram data set as a list')
     data = [float(x) for x in input().split()]
     
     kurtosisCalc = st.kurtosis(data)
     skewCalc = st.skew(data)
+    shapiroCalc = st.shapiro(data)
     mean = np.mean(data)
     median = np.median(data)
 
@@ -384,6 +385,9 @@ def histogramfeat(roundingValue):
 
     print ('Skewness: ' + str(skewCalc))
     print ('Kurtosis: ' + str(kurtosisCalc))
+    print ('Shapiro-Wilk Test: ' + str(shapiroCalc))
+
+    return skewCalc, kurtosisCalc, shapiroCalc
 
 def estimation(roundingValue):
     print ('1 - Population parameters | 2 - Sample parameters')
@@ -465,55 +469,117 @@ def binomial(roundingValue):
 
     return result
 
-def hypothesis(roundingValue):
+def hypothesis_calcs(roundingValue):
     print ('================== HYPOTHESIS TESTER ================== ')
-
-    def tailTest(tailChoice, tailSide):
-        popSD =  sampleSD / math.sqrt(sampleSize)
     
-        zValue = (sampleMean - nullHypo) / popSD
-        zArea = zscore_toarea(roundingValue, zValue)
-        
-        if tailChoice == '1':
-            pValue = round(1 - float(zArea), int(roundingValue))
-        elif tailChoice == '2':
-            pValue = round(2 * (1 - float(zArea)), int(roundingValue))
-            print ('P-value: ' + str(pValue))
-
-        print(hypoDecision(pValue, alphaValue, tailChoice, tailSide))
-
-    def hypoDecision(testValue, alphaValue, tailChoice, tailSide):
-
-        if tailChoice == '1':
-            if tailSide == '1':
-                if testValue > alphaValue:
-                    return(str(testValue) + ' > ' + str(alphaValue) + ': Reject null hypothesis')
-                else:
-                    return(str(testValue) + ' < ' + str(alphaValue) + ': FTR null hypothesis')
-            elif tailSide == '2':
-                if testValue < alphaValue:
-                    return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
-                else:
-                    return(str(testValue) + ' > ' + str(alphaValue) + ': FTR null hypothesis')
-        elif tailChoice == '2':
-            if abs(testValue) < abs(alphaValue):
-                return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
-            else:
-                return(str(-testValue) + ' <= ' + str(alphaValue) + ' <= ' + str(testValue) + ': FTR null hypothesis')
-    
+    testChoice = str(input('1: Z-test | 2: T-Test: '))
     tailChoice = str(input('1: One-tailed test | 2: Two-tailed test: '))
-    nullHypo = float(input('Enter null hypothesis value: '))
+    
+    if tailChoice == '1':
+        print ('Enter greater or less than null: 1 - greater (upper) | 2 - less than (lower)')
+        tailSide = str(input())
+        
+        if testChoice == '1':        
+            hypothesis_zTest(roundingValue, tailChoice, tailSide)
+        elif testChoice == '2':
+            hypothesis_tTest(roundingValue, tailChoice, tailSide)
+
+    elif tailChoice == '2':
+        
+        if testChoice == '1':
+            hypothesis_zTest(roundingValue, tailChoice, None)
+        elif testChoice == '2':
+            hypothesis_tTest(roundingValue, tailChoice, None)
+
+def hypothesis_zTest(roundingValue, tailChoice, tailSide):
+    
+    nullValue = float(input('Enter null hypothesis value: '))
     sampleSize = float(input('Enter sample size: '))
     sampleMean = float(input('Enter sample mean: '))
     sampleSD = float(input('Enter sample SD: '))
     alphaValue = float(input('Enter desired significance (0.10|0.05|0.01): '))
 
+    popSD =  sampleSD / math.sqrt(sampleSize)
+
+    zValue = (sampleMean - nullValue) / popSD
+
+    zArea = zscore_toarea(roundingValue, zValue)
+    
     if tailChoice == '1':
-        print ('Enter greater or less than null: 1 - greater (upper) | 2 - less than (lower)')
-        tailSide = str(input())
-        tailTest(tailChoice, tailSide)
+        pValue = round(1 - float(zArea), int(roundingValue))
     elif tailChoice == '2':
-        tailTest(tailChoice, None)
+        pValue = round(2 * (1 - float(zArea)), int(roundingValue))
+        print ('P-value: ' + str(pValue))
+
+    print(hypothesis_decision(pValue, alphaValue, tailChoice, tailSide))
+
+def hypothesis_tTest(roundingValue, tailChoice, tailSide):
+
+    tType = str(input('1: One Sample | 2: 2-Sample | 3: Indepdendent 2-Sample: '))
+    alphaValue = float(input('Enter desired significance (0.10|0.05|0.01): '))
+
+    if tType == '1' or tType == '2':
+
+        nullValue = float(input('Enter null hypothesis value: '))
+        sampleSize = float(input('Enter sample size: '))
+        sampleMean = float(input('Enter sample mean: '))
+        sampleSD = float(input('Enter sample SD: '))
+
+    elif tType == '3':
+
+        xbar1 = float(input('Enter sample mean 1: '))
+        s1 = float(input('Enter sample SD 1: ')) 
+        n1 = int(input('Enter sample size 1: '))
+
+        xbar2 = float(input('Enter sample mean 2: '))
+        s2 = float(input('Enter sample SD 2: '))
+        n2 = int(input('Enter sample size 2: '))
+
+        tScore_numerator = xbar1 - xbar2
+        tScore_denominator = math.sqrt((s1**2 / n1) + (s2**2 / n2))
+        tScore = tScore_numerator / tScore_denominator
+
+        df = hypothesis_degreesFreedom(s1, n1, s2, n2)
+        criticalT = math.fabs(st.t.ppf(alphaValue, df))
+        
+        print (tScore)
+        print (criticalT)
+
+        if tScore < criticalT:
+            print ('FTR Null')
+        elif tScore > criticalT:
+            print ('Reject Null')
+            
+def hypothesis_decision(testValue, alphaValue, tailChoice, tailSide):
+
+    if tailChoice == '1':
+        if tailSide == '1':
+            if testValue > alphaValue:
+                return(str(testValue) + ' > ' + str(alphaValue) + ': Reject null hypothesis')
+            else:
+                return(str(testValue) + ' < ' + str(alphaValue) + ': FTR null hypothesis')
+        elif tailSide == '2':
+            if testValue < alphaValue:
+                return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
+            else:
+                return(str(testValue) + ' > ' + str(alphaValue) + ': FTR null hypothesis')
+    elif tailChoice == '2':
+        if abs(testValue) < abs(alphaValue):
+            return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
+        else:
+            return(str(-testValue) + ' <= ' + str(alphaValue) + ' <= ' + str(testValue) + ': FTR null hypothesis')
+    
+def hypothesis_degreesFreedom(s1, n1, s2, n2):
+
+    ## independent two sample test
+    if s1 and s2 and n1 and n2:
+        numerator = ((s1**2 / n1) + (s2**2 / n2))**2
+        denominator = ((s1**2/n1)**2 / (n1-1) + (s2**2/n2)**2 / (n2-1))
+
+        df = int(math.floor(numerator / denominator))
+
+    print ('Degrees of Freedom: ' + str(df))
+    return df
 
 def calcselection(calcChoice, roundingValue):
     if calcChoice == 1:
@@ -525,13 +591,13 @@ def calcselection(calcChoice, roundingValue):
     elif calcChoice == 4:
         twobytwo(roundingValue)
     elif calcChoice == 5:
-        histogramfeat(roundingValue)
+        histogram_feat(roundingValue)
     elif calcChoice == 6:
         estimation(roundingValue)
     elif calcChoice == 7:
         binomial(roundingValue)
     elif calcChoice == 8:
-        hypothesis(roundingValue)
+        hypothesis_calcs(roundingValue)
 
 def chooser():
     print ('Enter the calc you would like to use')
