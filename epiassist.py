@@ -525,6 +525,14 @@ def hypothesis_tTest(roundingValue, tailChoice, tailSide):
         sampleMean = float(input('Enter sample mean: '))
         sampleSD = float(input('Enter sample SD: '))
 
+        df = sampleSize - 1
+
+        tScore = (sampleMean - nullValue) / (sampleSD / math.sqrt(sampleSize))
+        criticalT = math.fabs(st.t.ppf(alphaValue, df))
+
+        print ('T-Score: ' + str(tScore))
+        print ('Critical T-Score: ', criticalT)
+
     elif tType == '3':
 
         xbar1 = float(input('Enter sample mean 1: '))
@@ -542,14 +550,14 @@ def hypothesis_tTest(roundingValue, tailChoice, tailSide):
         df = hypothesis_degreesFreedom(s1, n1, s2, n2)
         criticalT = math.fabs(st.t.ppf(alphaValue, df))
         
-        print (tScore)
-        print (criticalT)
+        print (round(tScore, roundingValue))
+        print (round(criticalT, roundingValue))
 
-        if tScore < criticalT:
-            print ('FTR Null')
-        elif tScore > criticalT:
-            print ('Reject Null')
-            
+    if tScore < criticalT:
+        print ('FTR Null')
+    elif tScore > criticalT:
+        print ('Reject Null')
+
 def hypothesis_decision(testValue, alphaValue, tailChoice, tailSide):
 
     if tailChoice == '1':
