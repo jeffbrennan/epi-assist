@@ -19,7 +19,6 @@ def directadjustment(roundingValue):
     standardPop = [float(x) for x in input().split()]
 
     totalStandardPop = sum(standardPop)
-
     # multiples the condition rates by the population in the standard group
     # saves as list, then sums and creates rate by comparing expected to total
     expectedPop1 = [(loc1Rates[i] * standardPop[i]) for i in range(bins)]
@@ -32,7 +31,6 @@ def directadjustment(roundingValue):
 
     popFactorText = ' per ' + str(popFactor) + ' persons'
 
-    print(resultsDivider)
     print('Location 1: ' + str(adjustedRate1) + popFactorText +
           ' | Location 2: ' + str(adjustedrate2) + popFactorText)
 
@@ -43,7 +41,7 @@ def zscore_calcs(roundingValue):
 
     print('================== Z SCORE FINDER ================== ')
     print('1 - Z Score | 2 - Z Score -> Area | 3 - Area -> Z Score | ' +
-          '4 - Obs given percentile | 5 - Confidence Interval')
+          '4 - Obs given percentile')
 
     typeChoice = str(input())
     zscore_chooser(roundingValue, typeChoice)
@@ -58,8 +56,6 @@ def zscore_chooser(roundingValue, choice):
         area_tozscore(roundingValue, None)
     elif choice == '4':
         zscore_observation(roundingValue)
-    elif choice == '5':
-        confidence_interval(roundingValue, None)
 
 def zscore_value(roundingValue):
 
@@ -70,7 +66,6 @@ def zscore_value(roundingValue):
     zResult = (Obs - Mean) / SD
     zResult = float(round(zResult, roundingValue))
 
-    print(resultsDivider)
     print('Z Score: ' + str(zResult))
 
     zscore_toarea(roundingValue, zResult)
@@ -90,7 +85,6 @@ def zscore_toarea(roundingValue, calc_zscore):
     inversearea = round(inversearea, roundingValue)
     areapercent = round(areapercent, roundingValue)
 
-    print(resultsDivider)
     print('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' +
           '|Remaining area: ' + str(inversearea))
 
@@ -125,43 +119,6 @@ def zscore_observation(roundingValue):  # returns observation at a given percent
     print(str(percentile) + ' percentile observation: ' + str(observation))
     return observation
 
-def confidence_interval(roundingValue, calc_SE):
-
-    pointEstimate = float(input('Enter the point estimate: '))
-
-    if calc_SE:
-        SE = calc_SE
-    else:
-        SD = float(input('Enter the standard deviation: '))
-        sampleSize = float(input('Enter the sample size: '))
-
-        SE = SD / math.sqrt(sampleSize)
-
-    print('Enter desired % confidence - 1: 90 | 2: 95 | 3: 99 | 4: Custom')
-    choice = str(input())
-
-    if choice == '1':
-        z = 1.645
-    elif choice == '2':
-        z = 1.96
-    elif choice == '3':
-        z = 2.58
-    elif choice == '4':
-        z = zscore_toarea(roundingValue, None)
-
-    CIlow = pointEstimate - (z * SE)
-    CIhigh = pointEstimate + (z * SE)
-    marginError = (CIhigh - CIlow) / 2
-
-    results = [CIlow, CIhigh, marginError]
-    output = [round(i, roundingValue) for i in results]
-
-    print('There is a 95% chance that the true population [parameter] ' +
-          'lies between the interval: (' + str(output[0]) + ',' +
-          str(output[1]) + ') ± ' + str(output[2]))
-
-    return results
-
 # Bayes - 2 #
 def bayes(roundingValue):
     print('====== BAYES CALC ========')
@@ -177,7 +134,6 @@ def bayes(roundingValue):
     result = numerator / denominator
     result = round(result, roundingValue)
 
-    print(resultsDivider)
     print(result)
 
     return result
@@ -401,7 +357,7 @@ def estimation(roundingValue):
 
         if len(sampleValues) == sampleSize:
 
-            mean, variance, SD, SE = listCalculations(sampleValues, sampleSize)
+            mean, variance, SD, SE = list_calcs(sampleValues, sampleSize)
 
             results = [mean, variance, SD, SE]
             output = [round(i, roundingValue) for i in results]
@@ -424,7 +380,7 @@ def estimation(roundingValue):
 
         if len(sampleValues) == sampleSize:
 
-            mean, variance, SD, SE = listCalculations(sampleValues, sampleSize)
+            mean, variance, SD, SE = list_calcs(sampleValues, sampleSize)
 
             results = [mean, variance, SD, SE]
             output = [round(i, roundingValue) for i in results]
@@ -440,7 +396,7 @@ def estimation(roundingValue):
             print('Entered incorrect number of observations - restarting...')
             estimation(roundingValue)
 
-def listCalculations(numberList, sampleSize):
+def list_calcs(numberList, sampleSize):
 
     mean = sum(numberList) / sampleSize
 
@@ -472,24 +428,39 @@ def binomial(roundingValue):
 def hypothesis_calcs(roundingValue):
     print('================== HYPOTHESIS TESTER ================== ')
 
-    testChoice = str(input('1: Z-test | 2: T-Test: '))
-    tailChoice = str(input('1: One-tailed test | 2: Two-tailed test: '))
+    data_type = str(input('1: Numerical | 2: Categorical'))
+    # Numerical Tests (t test etc)
+    if data_type == '1':
+        num_test_choice = str(input('|1: Z-test|2: T-Test|3: Correlation|'))
 
-    if tailChoice == '1':
-        print('Enter greater or less than null: 1 - greater (upper) | 2 - less than (lower)')
-        tailSide = str(input())
+        tailChoice = str(input('1: One-tailed test | 2: Two-tailed test: '))
 
-        if testChoice == '1':
-            hypothesis_zTest(roundingValue, tailChoice, tailSide)
-        elif testChoice == '2':
-            hypothesis_tTest(roundingValue, tailChoice, tailSide)
+        if tailChoice == '1':
+            print('Enter greater or less than null: 1 - greater (upper) | 2 - less than (lower)')
+            tailSide = str(input())
 
-    elif tailChoice == '2':
+            if num_test_choice == '1':
+                hypothesis_zTest(roundingValue, tailChoice, tailSide)
+            elif num_test_choice == '2':
+                hypothesis_tTest(roundingValue, tailChoice, tailSide)
+            elif num_test_choice == '3':
+                hypothesis_chisquare(roundingValue)
 
-        if testChoice == '1':
-            hypothesis_zTest(roundingValue, tailChoice, None)
-        elif testChoice == '2':
-            hypothesis_tTest(roundingValue, tailChoice, None)
+        elif tailChoice == '2':
+            if num_test_choice == '1':
+                hypothesis_zTest(roundingValue, tailChoice, None)
+            elif num_test_choice == '2':
+                hypothesis_tTest(roundingValue, tailChoice, None)
+            elif num_test_choice == '3':
+                hypothesis_correlation(roundingValue)
+
+    # Categorical tests (proportion, difference of proportion etc)
+    elif data_type == '2':
+        cat_test_choice = str(input('1: Chi-Squared | 2: Fishers exact: '))
+        if cat_test_choice == '1':
+            hypothesis_chisquare(roundingValue)
+        elif cat_test_choice == '2':
+            hypothesis_fishers(roundingValue)
 
 def hypothesis_zTest(roundingValue, tailChoice, tailSide):
 
@@ -547,7 +518,7 @@ def hypothesis_tTest(roundingValue, tailChoice, tailSide):
         tScore_denominator = math.sqrt((s1**2 / n1) + (s2**2 / n2))
         tScore = tScore_numerator / tScore_denominator
 
-        df = hypothesis_degreesFreedom(s1, n1, s2, n2)
+        df = hypothesis_df(s1, n1, s2, n2)
         criticalT = math.fabs(st.t.ppf(alphaValue, df))
 
         print(round(tScore, roundingValue))
@@ -557,6 +528,87 @@ def hypothesis_tTest(roundingValue, tailChoice, tailSide):
         print('FTR Null')
     elif tScore > criticalT:
         print('Reject Null')
+
+def dynamic_table_maker(table, rows, i):
+    while True:
+        input_text = 'Row #' + str(i + 1) + ' | Enter row values separated by a space: '
+        new_row = [int(x) for x in input(input_text).split()]
+
+        if i > 0:
+            if len(new_row) == len(table[i - 1]):
+                return new_row
+                break
+            else:
+                print('\n Number of row items entered incorrectly. Retry input \n')
+        else:
+            return new_row
+            break
+
+def hypothesis_chisquare(roundingValue):
+    table = []
+    rows = int(input('Enter number of rows: '))
+
+    for i in range(rows):
+        table.append(dynamic_table_maker(table, rows, i))
+
+    chi, p, dof, expected = st.chi2_contingency(table)
+    results = [chi, p, dof]
+    output = [round(i, roundingValue) for i in results]
+
+    print('Chi Square value: ' + str(output[0]))
+    print('P-value: ' + str(output[1]))
+    print('Degrees of freedom: ' + str(output[2]))
+
+    return results
+
+def hypothesis_fishers(roundingValue):
+
+    table = []
+    rows = int(input('Enter number of rows: '))
+
+    for i in range(rows):
+        table.append(dynamic_table_maker(table, rows, i))
+
+    odds, p = st.fisher_exact(table)
+    results = [odds, p]
+    output = [round(i, roundingValue) for i in results]
+
+    print('Odds ratio: ' + str(output[0]))
+    print('P-value: ' + str(output[1]))
+
+    return results
+
+def hypothesis_correlation(roundingValue):
+
+    print('Enter group 1 numbers (continuous) separated by a space:')
+    group_1_nums = [float(x) for x in input().split()]
+
+    print('Enter continuous group 2 numbers (continuous) separated by a space:')
+    group_2_nums = [float(x) for x in input().split()]
+
+    data = [group_1_nums, group_2_nums]
+
+    normal_1 = normality_checker(data[0])
+    normal_2 = normality_checker(data[1])
+
+    if not normal_1 or not normal_2:
+        print('Data is not normal')
+
+    elif normal_1 and normal_2:
+        calc_choice = str(input('1: Spearman|2: Pearson|'))
+
+        if calc_choice == '1':
+            r, p = st.spearmanr(data[0], data[1])
+        elif calc_choice == '2':
+            r, p = st.pearsonr(data[0], data[1])
+
+        results = [r, p]
+        output = [round(i, roundingValue) for i in results]
+
+        print('R-coefficient: ' + str(output[0]))
+        print('P-value: ' + str(output[1]))
+
+        return results
 
 def hypothesis_decision(testValue, alphaValue, tailChoice, tailSide):
 
@@ -577,7 +629,7 @@ def hypothesis_decision(testValue, alphaValue, tailChoice, tailSide):
         else:
             return(str(-testValue) + ' <= ' + str(alphaValue) + ' <= ' + str(testValue) + ': FTR null hypothesis')
 
-def hypothesis_degreesFreedom(s1, n1, s2, n2):
+def hypothesis_df(s1, n1, s2, n2):
 
     # independent two sample test
     if s1 and s2 and n1 and n2:
@@ -588,6 +640,91 @@ def hypothesis_degreesFreedom(s1, n1, s2, n2):
 
     print('Degrees of Freedom: ' + str(df))
     return df
+
+def normality_checker(data):
+    t, p = st.shapiro(data)
+
+    if p > 0.05:
+        return True
+
+def confidence_interval(roundingValue, calc_SE):
+
+    pointEstimate = float(input('Enter the point estimate: '))
+
+    if calc_SE:
+        SE = calc_SE
+    else:
+        SE_Choice = str(input('Enter SE type|1: Z Score|2: Proportions|3: Diff Proportions: '))
+        if SE_Choice == '1':
+            SD = float(input('Enter the standard deviation: '))
+            sample_size = float(input('Enter the sample size: '))
+            SE = SD / math.sqrt(sample_size)
+        elif SE_Choice == '2':
+            phat = float(input('Enter phat value: '))
+            sample_size = float(input('Enter the sample size: '))
+            SE = math.sqrt((phat * (1 - phat) / sample_size))
+        elif SE_Choice == '3':
+            phat_1 = float(input('Enter first phat value: '))
+            sample_size_1 = float(input('Enter first sample size: '))
+
+            phat_2 = float(input('Enter second phat value: '))
+            sample_size_2 = float(input('Enter first sample size: '))
+
+            SE = math.sqrt((phat_1 * (1 - phat_1) / sample_size_1) +
+                           (phat_2 * (1 - phat_2) / sample_size_2))
+
+    print('Enter desired % confidence: |1: 90|2: 95|3: 99|4: Custom|')
+    CI_Choice = str(input())
+
+    if CI_Choice == '1':
+        z = 1.645
+    elif CI_Choice == '2':
+        z = 1.96
+    elif CI_Choice == '3':
+        z = 2.58
+    elif CI_Choice == '4':
+        z = zscore_toarea(roundingValue, None)
+
+    CIlow = pointEstimate - (z * SE)
+    CIhigh = pointEstimate + (z * SE)
+    marginError = (CIhigh - CIlow) / 2
+
+    results = [CIlow, CIhigh, marginError]
+    output = [round(i, roundingValue) for i in results]
+
+    print('There is a 95% chance that the true population [parameter] ' +
+          'lies between the interval: (' + str(output[0]) + ',' +
+          str(output[1]) + ') ± ' + str(output[2]))
+
+    return results
+
+def nonparametric_calcs(roundingValue):
+    print('Enter group 1 numbers (continuous) separated by a space:')
+    group_1_nums = [float(x) for x in input().split()]
+
+    print('Enter continuous group 2 numbers (continuous) separated by a space:')
+    group_2_nums = [float(x) for x in input().split()]
+
+    data = [group_1_nums, group_2_nums]
+
+    normal_1 = normality_checker(data[0])
+    normal_2 = normality_checker(data[1])
+    if not normal_1 or not normal_2:
+        print('Data is not normal')
+    elif normal_1 and normal_2:
+        test_choice = str(input('|1: Wilcoxon Signed (dependent)|2: Wilcoxon Rank Sum (independent)| '))
+        if test_choice == '1':
+            statistic, p = st.wilcoxon(data[0], data[1])
+        elif test_choice == '2':
+            statistic, p = st.ranksums(data[0], data[1])
+
+    results = [statistic, p]
+    output = [round(i, roundingValue) for i in results]
+
+    print('Statistic: ' + str(output[0]))
+    print('P-value: ' + str(output[1]))
+
+    return results
 
 def calcselection(calcChoice, roundingValue):
     if calcChoice == 1:
@@ -606,7 +743,10 @@ def calcselection(calcChoice, roundingValue):
         binomial(roundingValue)
     elif calcChoice == 8:
         hypothesis_calcs(roundingValue)
-
+    elif calcChoice == 9:
+        confidence_interval(roundingValue)
+    elif calcChoice == 10:
+        nonparametric_calcs(roundingValue)
 def chooser():
     print('Enter the calc you would like to use')
     print('1 - zscore')
@@ -617,6 +757,8 @@ def chooser():
     print('6 - Estimations')
     print('7 - Binomial')
     print('8 - Hypothesis Testing')
+    print('9 - Confidence Interval')
+    print('10 - Nonparametric Tests')
     calcChoice = int(input())
 
     roundingValue = int(input('Round result to how many decimal places? '))
@@ -626,5 +768,4 @@ def chooser():
     else:
         calcselection(calcChoice, 4)
 
-resultsDivider = ('======================== RESULTS ========================')
 chooser()
