@@ -46,6 +46,7 @@ def zscore_calcs(roundingValue):
     typeChoice = str(input())
     zscore_chooser(roundingValue, typeChoice)
 
+# Function navigates to the appropriate zscore related calculator based on user choice
 def zscore_chooser(roundingValue, choice):
 
     if choice == '1':
@@ -57,6 +58,7 @@ def zscore_chooser(roundingValue, choice):
     elif choice == '4':
         zscore_observation(roundingValue)
 
+# Returns z score given observed value, pop mean, and standard deviation
 def zscore_value(roundingValue):
 
     Obs = float(input('Enter the observation: '))
@@ -72,6 +74,7 @@ def zscore_value(roundingValue):
 
     return zResult
 
+# Converts a given z score to its corresponding percentile, relates to zscore_value function
 def zscore_toarea(roundingValue, calc_zscore):
     if calc_zscore:
         zscore = calc_zscore
@@ -90,6 +93,7 @@ def zscore_toarea(roundingValue, calc_zscore):
 
     return areacalc
 
+# What does this do
 def area_tozscore(roundingValue, percentile):
     area = input('Enter your desired area, blank if auto (returns zscore): ')
     if area:
@@ -198,6 +202,7 @@ def twobytwo(roundingValue):
     RR, OR = RR_OR(A, B, C, D)
     RR, OR = RR_OR(A, B, C, D)
 
+    # Exposed incidence, nonexposed incidence, population incidence, adjusted rate, percent adjusted rate
     eIncidence, nonEIncidence, popIncidence, AR, PAR = incidence_2x2(A, B, C, D)
 
     results = [PVP, PVN, sensitivity, specificity, OR, RR, eIncidence,
@@ -609,7 +614,7 @@ def hypothesis_correlation(roundingValue):
         print('P-value: ' + str(output[1]))
 
         return results
-
+# Consider deleting and handle each decision individually (becomes difficult w/ proportion based tests)
 def hypothesis_decision(testValue, alphaValue, tailChoice, tailSide):
 
     if tailChoice == '1':
