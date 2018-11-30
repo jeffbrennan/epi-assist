@@ -22,19 +22,43 @@ def prob_calc(query):
         sub_result = prob_calc_normal(query)
 
     return sub_result
-def calc_selector(user_query):
-    if user_query[0] == 'sum':
-        nums = [float(i) for i in user_query[1:]]
-        user_result = sum(nums)
+
+def regress(args, options):
+    y_var = args[0]
+    x_vars = args[1:]
+
+    return sub_result
+
+# TODO: add ability to import datasets and refer to them
+def calc_selector(command, args, options):
+    if command[0] == 'sum':
+        user_result = sum(args)
         print(user_result)
 
-    elif user_query[0] == 'probcalc':
-        result, output_text = prob_calc(user_query)
+    elif command[0] == 'regress':
+        user_result = regress(args, options)
+
+    elif command[0] == 'probcalc':
+        result, output_text = prob_calc(command)
         print(output_text)
 
 def main():
+    args = []
+    options = []
+
     user_query = [x for x in input().split()]
-    calc_selector(user_query)
+    command = user_query[0]
+
+    try:
+        comma_loc = [i for i, s in enumerate(user_query) if ',' in s][0]
+        args.extend(user_query[1:comma_loc])
+        args.extend(user_query[comma_loc][:-1])
+        options.extend(user_query[comma_loc + 1:])
+    except IndexError:
+        args.extend(user_query[1:])
+        options = None
+
+    calc_selector(command, args, options)
 
 if __name__ == "__main__":
     main()
