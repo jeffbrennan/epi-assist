@@ -1,6 +1,8 @@
 import scipy.stats as st
 import pandas as pd
 import numpy as np
+from sklearn import linear_model
+from sklearn.metrics import mean_squared_error, r2_score
 
 def prob_calc_normal(query):
     mean = float(query[2])
@@ -24,17 +26,48 @@ def prob_calc(query):
     return sub_result
 
 def regress(args, options):
-    y_var = args[0]
-    x_vars = args[1:]
+
+    regr = linear_model.LinearRegression()
+
+    if len(args) > 2:  # multiple regression
+        y_var = args[0]
+        x_vars = args[1:]
+    elif len(args) == 2:  # simple linear regression
+        y_var = args[0]
+        y_mid = len(y_var) // 2
+        y_train = y_var[:y_mid]
+        y_test = y_var[y_mid:]
+
+        x_var = args[1]
+        x_mid = len(x_var) // 2
+        x_train = x_var[:x_mid]
+        x_test = x_var[x_mid:]
+
+        regr.fit(x_train, y_train)
+        y_predict = regr.predict(x_test)
+
+    elif len(args) < 2:
+        print('Regression requires two variables')
+
+    coef = regr.coef_
+    MSE = mean_squared_error(y_test, y_predict)
+    r2 = r2_score(y_test, y_predict)
+
+    sub_result = [coef, MSE, r2]
 
     return sub_result
 
-# TODO: add ability to import datasets and refer to them
+def dataset_import(args, options):
+    data_path = args[0]
+    dataset = pd.read_csv(data_path)
+
+# TODO: add ability to complete several functions before exit (eg import dataset then do stuff with it)
 def calc_selector(command, args, options):
     if command[0] == 'sum':
         user_result = sum(args)
         print(user_result)
-
+    elif command[0] == 'import':
+        dataset_import(args, options)
     elif command[0] == 'regress':
         user_result = regress(args, options)
 
