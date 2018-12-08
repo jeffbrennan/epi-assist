@@ -150,12 +150,12 @@ def twobytwo(roundingValue):
     typeChoice = str(input())
 
     if typeChoice == '1':
-        print('Enter sensitivity and specificity or PVP and PVN')
+        print('Enter sensitivity and specificity or PPV and NPV')
         sensitivity = input('Enter sensitivity: ')
         specificity = input('Enter specificity: ')
 
-        PVP = input('Enter PVP: ')
-        PVN = input('Enter PVN: ')
+        PPV = input('Enter PPV: ')
+        NPV = input('Enter NPV: ')
 
         if sensitivity and specificity:
 
@@ -173,20 +173,20 @@ def twobytwo(roundingValue):
             D = BD * specificity
             B = BD - D
 
-        elif PVP and PVN:
+        elif PPV and NPV:
 
-            PVP = float(PVP)
-            PVN = float(PVN)
+            PPV = float(PPV)
+            NPV = float(NPV)
 
             popsize = int(input('Enter size of population: '))
             totalposresults = int(input('Enter number of positive test results: '))
 
             AB = totalposresults
-            A = totalposresults * PVP
+            A = totalposresults * PPV
             B = AB - A
 
             CD = popsize - totalposresults
-            D = CD * PVN
+            D = CD * NPV
             C = CD - D
 
     elif typeChoice == '2':
@@ -198,14 +198,14 @@ def twobytwo(roundingValue):
 
     # calls helper functions to calculate basic values
     sensitivity, specificity = sens_spec(A, B, C, D)
-    PVP, PVN = PVP_PVN(A, B, C, D)
+    PPV, NPV = PPV_NPV(A, B, C, D)
     RR, OR = RR_OR(A, B, C, D)
     RR, OR = RR_OR(A, B, C, D)
 
     # Exposed incidence, nonexposed incidence, population incidence, adjusted rate, percent adjusted rate
     eIncidence, nonEIncidence, popIncidence, AR, PAR = incidence_2x2(A, B, C, D)
 
-    results = [PVP, PVN, sensitivity, specificity, OR, RR, eIncidence,
+    results = [PPV, NPV, sensitivity, specificity, OR, RR, eIncidence,
                nonEIncidence, popIncidence, AR, PAR, A, B, C, D]
 
     output = [round(i, roundingValue) for i in results]
@@ -230,8 +230,8 @@ def twobytwo(roundingValue):
     print(twoTable)
 
     # consider converting to dictionary
-    print('\n' + 'Predictive positive value (PVP): ' + str(output[0]))
-    print('Predictive negative value (PVN): ' + str(output[1]))
+    print('\n' + 'Predictive positive value (PPV): ' + str(output[0]))
+    print('Predictive negative value (NPV): ' + str(output[1]))
     print('Sensitivity: ' + str(output[2]))
     print('Specificity: ' + str(output[3]))
     print('Odds Ratio (case control): ' + str(output[4]))
@@ -259,11 +259,11 @@ def sens_spec(A, B, C, D):
 
     return sensitivity, specificity
 
-def PVP_PVN(A, B, C, D):
-    PVP = A / (A + B)
-    PVN = D / (C + D)
+def PPV_NPV(A, B, C, D):
+    PPV = A / (A + B)
+    NPV = D / (C + D)
 
-    return PVP, PVN
+    return PPV, NPV
 
 def incidence_2x2(A, B, C, D):
     totalPop = A + B + C + D
