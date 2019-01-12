@@ -9,32 +9,31 @@ def directadjustment(roundingValue):
     bins = int(input('Enter number of groups: '))
     popFactor = int(input('Enter population factor eg 1000, 10000...'))
 
-    print('Enter location 1 rates separated by a space:')
-    loc1Rates = [float(x) for x in input().split()]
-
-    print('Enter location 2 rates separated by a space:')
-    loc2Rates = [float(x) for x in input().split()]
-
-    print('Enter Standard populations separated by a space:')  # might help to have explanation on this point
-    standardPop = [float(x) for x in input().split()]
+    loc1Rates = [float(x) for x in input('Enter location 1 rates separated by a space:\n').split()]
+    loc2Rates = [float(x) for x in input('Enter location 2 rates separated by a space:\n').split()]
+    standardPop = [float(x) for x in input('Enter standard populations separated by a space:\n').split()]
 
     totalStandardPop = sum(standardPop)
-    # multiples the condition rates by the population in the standard group
+
+    # multiplies the condition rates by the population in the standard group
     # saves as list, then sums and creates rate by comparing expected to total
     expectedPop1 = [(loc1Rates[i] * standardPop[i]) for i in range(bins)]
     totalExpected1 = sum(expectedPop1)
-    adjustedRate1 = (totalExpected1 / totalStandardPop) * popFactor
+    adj_rate_1 = (totalExpected1 / totalStandardPop) * popFactor
 
     expectedpop2 = [(loc2Rates[i] * standardPop[i]) for i in range(bins)]
     totalexpected2 = sum(expectedpop2)
-    adjustedrate2 = (totalexpected2 / totalStandardPop) * popFactor
+    adj_rate_2 = (totalexpected2 / totalStandardPop) * popFactor
 
     popFactorText = ' per ' + str(popFactor) + ' persons'
 
-    print('Location 1: ' + str(adjustedRate1) + popFactorText +
-          ' | Location 2: ' + str(adjustedrate2) + popFactorText)
+    results = [adj_rate_1, adj_rate_2]
+    output = [str(round(i, roundingValue)) for i in results]
 
-    return adjustedRate1, adjustedrate2
+    print('Location 1: ' + output[0] + popFactorText +
+          ' | Location 2: ' + output[1] + popFactorText)
+
+    return results
 
 # Zscore calculations - 1 #
 def zscore_calcs(roundingValue):
@@ -76,6 +75,8 @@ def zscore_value(roundingValue):
 
 # Converts a given z score to its corresponding percentile, relates to zscore_value function
 def zscore_toarea(roundingValue, calc_zscore):
+
+    # Uses z score from zscore_value, otherwise prompts user input
     if calc_zscore:
         zscore = calc_zscore
     else:
@@ -84,30 +85,40 @@ def zscore_toarea(roundingValue, calc_zscore):
     areacalc = st.norm.cdf(zscore)
     inversearea = 1 - areacalc
     areapercent = areacalc * 100
-    areacalc = round(areacalc, roundingValue)
-    inversearea = round(inversearea, roundingValue)
-    areapercent = round(areapercent, roundingValue)
 
-    print('Area: ' + str(areacalc) + '|' + str(areapercent) + '%' +
-          '|Remaining area: ' + str(inversearea))
+    area_result = round(areacalc, roundingValue)
+    inverse_result = round(inversearea, roundingValue)
+    area_pct_result = round(areapercent, roundingValue)
+
+    print('Area: ' + str(area_result) + ' (' + str(area_pct_result) + '%)' +
+          ' | Remaining area: ' + str(inverse_result))
 
     return areacalc
 
-# What does this do
+# TODO: create better solution for unbound error
 def area_tozscore(roundingValue, percentile):
-    area = input('Enter your desired area, blank if auto (returns zscore): ')
-    if area:
-        area = float(area)
-    else:
+
+    if percentile:
         area = percentile
-
-    if area > 1:
-        zResult = st.norm.ppf(percentile / 100)
     else:
-        zResult = st.norm.ppf(percentile)
+        area = float(input('Enter your desired area: '))
 
-    print(zResult)
-    return zResult
+    # have to include output in if statement otherwise returns unboundlocalerror
+    if area > 1 and area <= 100:
+        zResult = st.norm.ppf(area / 100)
+        z_output = round(zResult, roundingValue)
+        print('Z score: ' + str(z_output))
+        return zResult
+
+    elif area < 1:
+        zResult = st.norm.ppf(area)
+        z_output = round(zResult, roundingValue)
+        print('Z score: ' + str(z_output))
+        return zResult
+
+    elif area > 100:
+        print('Area must be between 0 and 1 - restarting...')
+        area_tozscore(roundingValue, None)
 
 def zscore_observation(roundingValue):  # returns observation at a given percentile
 
@@ -118,9 +129,9 @@ def zscore_observation(roundingValue):  # returns observation at a given percent
     zResult = area_tozscore(roundingValue, percentile)
 
     observation = (zResult * SD) + Mean
-    observation = round(observation, roundingValue)
+    observation_output = round(observation, roundingValue)
 
-    print(str(percentile) + ' percentile observation: ' + str(observation))
+    print(str(percentile) + ' percentile observation: ' + str(observation_output))
     return observation
 
 # Bayes - 2 #
@@ -129,17 +140,16 @@ def bayes(roundingValue):
     print('Enter values as a proportion')
 
     prevalence = float(input('Enter disease prevalence: '))
-    diseaseAccuracy = float(input('Enter accuracy for disease test: '))
-    complementAccuracy = float(input('Enter accuracy for complement test: '))
+    disease_acc = float(input('Enter accuracy for disease test: '))
+    complement_acc = float(input('Enter accuracy for complement test: '))
 
-    numerator = (prevalence * diseaseAccuracy)
-    denominator = (numerator + ((1 - prevalence) * complementAccuracy))
+    numerator = (prevalence * disease_acc)
+    denominator = (numerator + ((1 - prevalence) * complement_acc))
 
     result = numerator / denominator
-    result = round(result, roundingValue)
+    result_output = round(result, roundingValue)
 
-    print(result)
-
+    print(result_output)
     return result
 
 def twobytwo(roundingValue):
@@ -210,7 +220,7 @@ def twobytwo(roundingValue):
 
     output = [round(i, roundingValue) for i in results]
 
-    errorChoice = str(input('Does the table have information bias (1 - y|2 - n): '))
+    errorChoice = str(input('Does the table have information bias (1 - yes|2 - no): '))
     if errorChoice == '1':
         errorRR, errorOR = error_2x2(A, B, C, D)
 
@@ -218,6 +228,7 @@ def twobytwo(roundingValue):
         errorOR = round(errorOR, roundingValue)
     else:
         errorRR = 'N/A: No information bias declared'
+        errorOR = 'N/A: No information bias declared'
 
     col1 = [A, C]
     col2 = [B, D]
@@ -278,8 +289,9 @@ def incidence_2x2(A, B, C, D):
 def error_2x2(A, B, C, D):
 
     errorType = str(input('Enter error type (1 - nondifferential |2 - differential): '))
-    errorRate = float(input('Enter misclassification rate'))
-    errorDirection = str(input('Enter error direction (1 - E->NE |2 - NE->E): '))
+    errorRate = float(input('Enter misclassification rate: '))
+    errorDirection = str(input('Enter error direction (1 - Error-> No error |' +
+                               '2 - No error-> Error): '))
 
     if errorType == '1' and errorDirection == '1':
         A -= (A * errorRate)
@@ -317,38 +329,41 @@ def error_2x2(A, B, C, D):
     return errorRR, errorOR
 
 def histogram_feat(roundingValue):
-    print('Enter histogram data set as a list')
+    print('Enter histogram data set as a list separated by spaces')
     data = [float(x) for x in input().split()]
 
-    kurtosisCalc = st.kurtosis(data)
-    skewCalc = st.skew(data)
-    shapiroCalc = st.shapiro(data)
+    kurt_calc = st.kurtosis(data)
+    skew_calc = st.skew(data)
+    shapiro_calc = st.shapiro(data)
     mean = np.mean(data)
     median = np.median(data)
 
-    print('=============RESULT===========')
-
     if mean > median:
-        print('Histogram is right-skewed')
+        skew_text = 'Histogram is right-skewed'
     elif mean < median:
-        print('Histogram is left-skewed')
+        skew_text = 'Histogram is left-skewed'
     elif mean == median:
-        print('Histogram is symmetric')
+        skew_text = 'Histogram is symmetric'
 
-    # !! Need to check decisions
-    if kurtosisCalc > 3:
-        print('Data is leptokurtic')
-    elif kurtosisCalc < 3:
-        print('Data is platykurtic ')
+    if kurt_calc > 0:
+        kurt_text = 'Data is leptokurtic'
+    elif kurt_calc < 0:
+        kurt_text = 'Data is platykurtic'
 
-    skewCalc = round(skewCalc, roundingValue)
-    kurtosisCalc = round(kurtosisCalc, roundingValue)
+    if shapiro_calc[1] < 0.05:
+        shapiro_text = 'Data is not normal'
+    elif shapiro_calc[1] > 0.05:
+        shapiro_text = 'Data is normal'
 
-    print('Skewness: ' + str(skewCalc))
-    print('Kurtosis: ' + str(kurtosisCalc))
-    print('Shapiro-Wilk Test: ' + str(shapiroCalc))
+    skew_out = round(skew_calc, roundingValue)
+    kurt_out = round(kurt_calc, roundingValue)
+    shapiro_out = round(shapiro_calc[1], roundingValue)
 
-    return skewCalc, kurtosisCalc, shapiroCalc
+    print('Skewness: ' + str(skew_out) + ' | ' + skew_text)
+    print('Kurtosis: ' + str(kurt_out) + ' | ' + kurt_text)
+    print('Shapiro-Wilk Test: ' + str(shapiro_out) + ' | ' + shapiro_text)
+
+    return skew_calc, kurt_calc, shapiro_calc
 
 def estimation(roundingValue):
     print('1 - Population parameters | 2 - Sample parameters')
@@ -534,7 +549,7 @@ def hypothesis_tTest(roundingValue, tailChoice, tailSide):
     elif tScore > criticalT:
         print('Reject Null')
 
-def dynamic_table_maker(table, rows, i):
+def table_maker(table, rows, i):
     while True:
         input_text = 'Row #' + str(i + 1) + ' | Enter row values separated by a space: '
         new_row = [int(x) for x in input(input_text).split()]
@@ -554,7 +569,7 @@ def hypothesis_chisquare(roundingValue):
     rows = int(input('Enter number of rows: '))
 
     for i in range(rows):
-        table.append(dynamic_table_maker(table, rows, i))
+        table.append(table_maker(table, rows, i))
 
     chi, p, dof, expected = st.chi2_contingency(table)
     results = [chi, p, dof]
@@ -572,7 +587,7 @@ def hypothesis_fishers(roundingValue):
     rows = int(input('Enter number of rows: '))
 
     for i in range(rows):
-        table.append(dynamic_table_maker(table, rows, i))
+        table.append(table_maker(table, rows, i))
 
     odds, p = st.fisher_exact(table)
     results = [odds, p]
