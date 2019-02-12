@@ -3,7 +3,7 @@ import scipy.stats as st
 import numpy as np
 import pandas as pd
 
-def directadjustment(roundingValue):
+def directadjustment(round_val):
 
     print('======== DIRECT ADJUSTMENT =========')
     bins = int(input('Enter number of groups: '))
@@ -28,7 +28,7 @@ def directadjustment(roundingValue):
     popFactorText = ' per ' + str(popFactor) + ' persons'
 
     results = [adj_rate_1, adj_rate_2]
-    output = [str(round(i, roundingValue)) for i in results]
+    output = [str(round(result, round_val)) for result in results]
 
     print('Location 1: ' + output[0] + popFactorText +
           ' | Location 2: ' + output[1] + popFactorText)
@@ -36,45 +36,45 @@ def directadjustment(roundingValue):
     return results
 
 # Zscore calculations - 1 #
-def zscore_calcs(roundingValue):
+def zscore_calcs(round_val):
 
     print('================== Z SCORE FINDER ================== ')
     print('1 - Z Score | 2 - Z Score -> Area | 3 - Area -> Z Score | ' +
           '4 - Obs given percentile')
 
     typeChoice = str(input())
-    zscore_chooser(roundingValue, typeChoice)
+    zscore_chooser(round_val, typeChoice)
 
 # Function navigates to the appropriate zscore related calculator based on user choice
-def zscore_chooser(roundingValue, choice):
+def zscore_chooser(round_val, choice):
 
     if choice == '1':
-        zscore_value(roundingValue)
+        zscore_value(round_val)
     elif choice == '2':
-        zscore_toarea(roundingValue, None)
+        zscore_toarea(round_val, None)
     elif choice == '3':
-        area_tozscore(roundingValue, None)
+        area_tozscore(round_val, None)
     elif choice == '4':
-        zscore_observation(roundingValue)
+        zscore_observation(round_val)
 
 # Returns z score given observed value, pop mean, and standard deviation
-def zscore_value(roundingValue):
+def zscore_value(round_val):
 
     Obs = float(input('Enter the observation: '))
     Mean = float(input('Enter the mean: '))
     SD = float(input('Enter SD: '))
 
     zResult = (Obs - Mean) / SD
-    zResult = float(round(zResult, roundingValue))
+    zResult = float(round(zResult, round_val))
 
     print('Z Score: ' + str(zResult))
 
-    zscore_toarea(roundingValue, zResult)
+    zscore_toarea(round_val, zResult)
 
     return zResult
 
 # Converts a given z score to its corresponding percentile, relates to zscore_value function
-def zscore_toarea(roundingValue, calc_zscore):
+def zscore_toarea(round_val, calc_zscore):
 
     # Uses z score from zscore_value, otherwise prompts user input
     if calc_zscore:
@@ -86,17 +86,16 @@ def zscore_toarea(roundingValue, calc_zscore):
     inversearea = 1 - areacalc
     areapercent = areacalc * 100
 
-    area_result = round(areacalc, roundingValue)
-    inverse_result = round(inversearea, roundingValue)
-    area_pct_result = round(areapercent, roundingValue)
+    area_result = round(areacalc, round_val)
+    inverse_result = round(inversearea, round_val)
+    area_pct_result = round(areapercent, round_val)
 
     print('Area: ' + str(area_result) + ' (' + str(area_pct_result) + '%)' +
           ' | Remaining area: ' + str(inverse_result))
 
     return areacalc
 
-# TODO: create better solution for unbound error
-def area_tozscore(roundingValue, percentile):
+def area_tozscore(round_val, percentile):
 
     if percentile:
         area = percentile
@@ -106,36 +105,36 @@ def area_tozscore(roundingValue, percentile):
     # have to include output in if statement otherwise returns unboundlocalerror
     if area > 1 and area <= 100:
         zResult = st.norm.ppf(area / 100)
-        z_output = round(zResult, roundingValue)
+        z_output = round(zResult, round_val)
         print('Z score: ' + str(z_output))
         return zResult
 
     elif area < 1:
         zResult = st.norm.ppf(area)
-        z_output = round(zResult, roundingValue)
+        z_output = round(zResult, round_val)
         print('Z score: ' + str(z_output))
         return zResult
 
     elif area > 100:
         print('Area must be between 0 and 1 - restarting...')
-        area_tozscore(roundingValue, None)
+        area_tozscore(round_val, None)
 
-def zscore_observation(roundingValue):  # returns observation at a given percentile
+def zscore_observation(round_val):  # returns observation at a given percentile
 
     percentile = float(input('Enter percentile: '))
     SD = float(input('Enter SD: '))
     Mean = float(input('Enter mean: '))
 
-    zResult = area_tozscore(roundingValue, percentile)
+    zResult = area_tozscore(round_val, percentile)
 
     observation = (zResult * SD) + Mean
-    observation_output = round(observation, roundingValue)
+    observation_output = round(observation, round_val)
 
     print(str(percentile) + ' percentile observation: ' + str(observation_output))
     return observation
 
 # Bayes - 2 #
-def bayes(roundingValue):
+def bayes(round_val):
     print('====== BAYES CALC ========')
     print('Enter values as a proportion')
 
@@ -147,12 +146,12 @@ def bayes(roundingValue):
     denominator = (numerator + ((1 - prevalence) * complement_acc))
 
     result = numerator / denominator
-    result_output = round(result, roundingValue)
+    result_output = round(result, round_val)
 
     print(result_output)
     return result
 
-def twobytwo(roundingValue):
+def twobytwo(round_val):
 
     print('====== 2x2 TABLE SOLVER ======')
 
@@ -210,25 +209,19 @@ def twobytwo(roundingValue):
     sensitivity, specificity = sens_spec(A, B, C, D)
     PPV, NPV = PPV_NPV(A, B, C, D)
     RR, OR = RR_OR(A, B, C, D)
-    RR, OR = RR_OR(A, B, C, D)
 
     # Exposed incidence, nonexposed incidence, population incidence, adjusted rate, percent adjusted rate
     eIncidence, nonEIncidence, popIncidence, AR, PAR = incidence_2x2(A, B, C, D)
-
-    results = [PPV, NPV, sensitivity, specificity, OR, RR, eIncidence,
-               nonEIncidence, popIncidence, AR, PAR, A, B, C, D]
-
-    output = [round(i, roundingValue) for i in results]
 
     errorChoice = str(input('Does the table have information bias (1 - yes|2 - no): '))
     if errorChoice == '1':
         errorRR, errorOR = error_2x2(A, B, C, D)
 
-        errorRR = round(errorRR, roundingValue)
-        errorOR = round(errorOR, roundingValue)
+        errorRR = round(errorRR, round_val)
+        errorOR = round(errorOR, round_val)
     else:
-        errorRR = 'N/A: No information bias declared'
-        errorOR = 'N/A: No information bias declared'
+        errorRR = RR
+        errorOR = OR
 
     col1 = [A, C]
     col2 = [B, D]
@@ -236,24 +229,28 @@ def twobytwo(roundingValue):
     tableData = {'+': col1, '-': col2}
     twoTable = pd.DataFrame(tableData, index=['Exposed', 'Nonexposed'])
 
+    results = [PPV, NPV, sensitivity, specificity, OR, errorOR, RR, errorRR, eIncidence,
+               nonEIncidence, popIncidence, AR, PAR, A, B, C, D]
+
+    output = [str(round(result, round_val)) for result in results]
+
     print('======================== RESULTS ========================')
 
     print(twoTable)
 
-    # consider converting to dictionary
-    print('\n' + 'Predictive positive value (PPV): ' + str(output[0]))
-    print('Predictive negative value (NPV): ' + str(output[1]))
-    print('Sensitivity: ' + str(output[2]))
-    print('Specificity: ' + str(output[3]))
-    print('Odds Ratio (case control): ' + str(output[4]))
-    print('Error adjusted OR: ' + str(errorOR))
-    print('Risk Ratio (cohort): ' + str(output[5]))
-    print('Error adjusted RR: ' + str(errorRR))
-    print('Exposed Incidence: ' + str(output[6]))
-    print('Unexposed Incidence: ' + str(output[7]))
-    print('Total population incidence: ' + str(output[8]))
-    print('Attributable risk: ' + str(output[9]))
-    print('Percent attributable risk: ' + str(output[10]))
+    print('\n' + 'Positive predictive value (PPV): ' + output[0])
+    print('Negative predictive value (NPV): ' + output[1])
+    print('Sensitivity: ' + output[2])
+    print('Specificity: ' + output[3])
+    print('Odds Ratio (case control): ' + output[4])
+    print('Error adjusted OR: ' + output[5])
+    print('Risk Ratio (cohort): ' + output[6])
+    print('Error adjusted RR: ' + output[7])
+    print('Exposed Incidence: ' + output[8])
+    print('Unexposed Incidence: ' + output[9])
+    print('Total population incidence: ' + output[10])
+    print('Attributable risk: ' + output[11])
+    print('Percent attributable risk: ' + output[12])
 
     return results
 
@@ -282,8 +279,10 @@ def incidence_2x2(A, B, C, D):
     eIncidence = (A / (A + B))
     nonEIncidence = (C / (C + D))
     popIncidence = (A + C) / totalPop
+
     AR = eIncidence - nonEIncidence
     PAR = ((popIncidence - nonEIncidence) / popIncidence) * 100
+
     return eIncidence, nonEIncidence, popIncidence, AR, PAR
 
 def error_2x2(A, B, C, D):
@@ -328,7 +327,9 @@ def error_2x2(A, B, C, D):
     errorRR, errorOR = RR_OR(A, B, C, D)
     return errorRR, errorOR
 
-def histogram_feat(roundingValue):
+
+# TODO: add dataset import functionality (unrealistic to manually enter data for histogram etc)
+def histogram_feat(round_val):
     print('Enter histogram data set as a list separated by spaces')
     data = [float(x) for x in input().split()]
 
@@ -355,9 +356,9 @@ def histogram_feat(roundingValue):
     elif shapiro_calc[1] > 0.05:
         shapiro_text = 'Data is normal'
 
-    skew_out = round(skew_calc, roundingValue)
-    kurt_out = round(kurt_calc, roundingValue)
-    shapiro_out = round(shapiro_calc[1], roundingValue)
+    skew_out = round(skew_calc, round_val)
+    kurt_out = round(kurt_calc, round_val)
+    shapiro_out = round(shapiro_calc[1], round_val)
 
     print('Skewness: ' + str(skew_out) + ' | ' + skew_text)
     print('Kurtosis: ' + str(kurt_out) + ' | ' + kurt_text)
@@ -365,87 +366,151 @@ def histogram_feat(roundingValue):
 
     return skew_calc, kurt_calc, shapiro_calc
 
-def estimation(roundingValue):
-    print('1 - Population parameters | 2 - Sample parameters')
+def estimation_calcs(round_val):
+    print('1 - Population mean | 2 - Sample mean | 3 - Variation')
     typeChoice = str(input())
 
     if typeChoice == '1':
-        sampleSize = int(input('Enter number in sample: '))
-
-        print('Enter observations for all N in sample separated by a space')
-        sampleValues = [float(x) for x in input().split()]
-
-        if len(sampleValues) == sampleSize:
-
-            mean, variance, SD, SE = list_calcs(sampleValues, sampleSize)
-
-            results = [mean, variance, SD, SE]
-            output = [round(i, roundingValue) for i in results]
-            print('Population mean: ' + str(output[0]))
-            print('Population variance: ' + str(output[1]))
-            print('Population SD: ' + str(output[2]))
-
-            return results
-
-        else:
-            print('Entered incorrect number of observations - restarting...')
-            estimation(roundingValue)
-
+        pop_calc(round_val)
     elif typeChoice == '2':
+        sample_calc(round_val)
+    elif typeChoice == '3':
+        var_calc(round_val)
 
-        sampleSize = int(input('Enter number in sample: '))
+def pop_calc(round_val):
+    sample_size = int(input('Enter number in sample: '))
 
-        print('Enter observations for all N in sample')
-        sampleValues = [float(x) for x in input().split()]
+    print('Enter observations for all N in sample separated by a space')
+    observations = [float(x) for x in input().split()]
 
-        if len(sampleValues) == sampleSize:
+    if len(observations) == sample_size:
 
-            mean, variance, SD, SE = list_calcs(sampleValues, sampleSize)
+        mean, variance, SD, SE = list_calcs(observations, sample_size)
 
-            results = [mean, variance, SD, SE]
-            output = [round(i, roundingValue) for i in results]
+        results = [mean, variance, SD, SE]
+        output = [str(round(result, round_val)) for result in results]
+        print('Population mean: ' + output[0])
+        print('Population variance: ' + output[1])
+        print('Population SD: ' + output[2])
 
-            print('Sample mean: ' + str(output[0]))
-            print('Sample variance: ' + str(output[1]))
-            print('Sample SD: ' + str(output[2]))
-            print('Sample SE: ' + str(output[3]))
+        return results
 
-            return results
+    else:
+        print('Entered incorrect number of observations - restarting...')
+        estimation_calcs(round_val)
 
-        else:
-            print('Entered incorrect number of observations - restarting...')
-            estimation(roundingValue)
+def sample_calc(round_val):
+    sample_size = int(input('Enter number in sample: '))
 
-def list_calcs(numberList, sampleSize):
+    print('Enter observations for all N in sample')
+    observations = [float(x) for x in input().split()]
 
-    mean = sum(numberList) / sampleSize
+    if len(observations) == sample_size:
+
+        mean, variance, SD, SE = list_calcs(observations, sample_size)
+
+        results = [mean, variance, SD, SE]
+        output = [str(round(result, round_val)) for result in results]
+
+        print('Sample mean: ' + output[0])
+        print('Sample variance: ' + output[1])
+        print('Sample SD: ' + output[2])
+        print('Sample SE: ' + output[3])
+
+        return results
+
+    else:
+        print('Entered incorrect number of observations - restarting...')
+        estimation_calcs(round_val)
+
+def var_calc(round_val):
+    s_var = float(input('Enter sample variance: '))
+    sample_size = int(input('Enter the sample size: '))
+    CI = float(input('Enter desired confidence (as decimal): '))
+
+    CI_tails = (1 - CI) / 2
+    chi_low = st.chi2.ppf(1 - CI_tails, sample_size - 1)
+    chi_high = st.chi2.ppf(CI_tails, sample_size - 1)
+
+    var_low = ((sample_size - 1) * s_var) / chi_low
+    var_high = ((sample_size - 1) * s_var) / chi_high
+
+    CI_PCT = CI * 100
+
+    results = [CI_PCT, var_low, var_high]
+    output = [str(round(result, round_val)) for result in results]
+    print('We are ' + output[0] + '% confident that the variance is between ' + output[1] + ' and ' + output[2])
+
+def list_calcs(numberList, sample_size):
+
+    mean = sum(numberList) / sample_size
 
     squareDif = [(i - mean)**2 for i in numberList]
-    variance = sum(squareDif) / sampleSize
+    variance = sum(squareDif) / sample_size
 
     SD = math.sqrt(variance)
-    SE = variance / (math.sqrt(sampleSize))
+    SE = variance / (math.sqrt(sample_size))
 
     return mean, variance, SD, SE
 
-def binomial(roundingValue):
+def discrete_calcs(round_val):
+    discrete_choice = str(input('(1 - Binomial | 2 - Poisson): '))
+
+    if discrete_choice == '1':
+        binomial_calc(round_val)
+    elif discrete_choice == '2':
+        poisson_calc(round_val)
+
+def binomial_calc(round_val):
 
     n = int(input('Enter n: '))
-    x = int(input('Enter x: '))
     p = float(input('Enter p: '))
 
-    choose = math.factorial(n) / (math.factorial(x) * math.factorial(n - x))
-    result = (choose * (p ** x) * (1 - p) ** (n - x))
-    resultpercent = result * 100
+    num_events = int(input('Enter desired number of events (int): '))
 
-    result = round(result, roundingValue)
-    resultpercent = round(resultpercent, str(int(roundingValue) - 2))
+    prob_sum = 0
+    for i in range(num_events):
+        choose = math.factorial(n) / (math.factorial(i) * math.factorial(n - i))
+        prob = (choose * (p ** i) * (1 - p) ** (n - i))
+        print('P(X = ' + str(i) + ') = ' + str(prob))
 
-    print('Probability: ' + result + ' | ' + resultpercent + '%')
+        prob_sum += prob
 
-    return result
+    inverse_prob = 1 - prob_sum
+    results = [prob_sum, inverse_prob]
 
-def hypothesis_calcs(roundingValue):
+    output = [str(round(result, round_val)) for result in results]
+
+    print('Probability: ' + output[0] + ' | ' + output[1])
+
+    return results
+
+def poisson_calc(round_val):
+    poisson_rate = float(input('Enter event rate: '))
+    poisson_time = float(input('Enter desired event time: '))
+    poisson_pop = int(input('Enter size of population: '))
+    num_events = int(input('Enter desired number of events (int): '))
+
+    expected_num = poisson_rate * poisson_time * poisson_pop
+
+    prob_sum = 0
+    for i in range(num_events):
+        prob = (((math.e) ** -expected_num) * (expected_num ** i)) / math.factorial(i)
+        print('P(X = ' + str(i) + ') = ' + str(prob))
+
+        prob_sum += prob
+
+    final_prob = 1 - prob_sum
+
+    results = [expected_num, num_events, final_prob]
+    output = [str(round(result, round_val)) for result in results]
+
+    print('Expected number of events: ' + output[0])
+    print('Probability of ' + output[1] + ' or more events: ' + output[2])
+
+    return results
+
+def hypothesis_calcs(round_val):
     print('================== HYPOTHESIS TESTER ================== ')
 
     data_type = str(input('1: Numerical | 2: Categorical'))
@@ -460,51 +525,51 @@ def hypothesis_calcs(roundingValue):
             tailSide = str(input())
 
             if num_test_choice == '1':
-                hypothesis_zTest(roundingValue, tailChoice, tailSide)
+                hypothesis_zTest(round_val, tailChoice, tailSide)
             elif num_test_choice == '2':
-                hypothesis_tTest(roundingValue, tailChoice, tailSide)
+                hypothesis_tTest(round_val, tailChoice, tailSide)
             elif num_test_choice == '3':
-                hypothesis_chisquare(roundingValue)
+                hypothesis_chisquare(round_val)
 
         elif tailChoice == '2':
             if num_test_choice == '1':
-                hypothesis_zTest(roundingValue, tailChoice, None)
+                hypothesis_zTest(round_val, tailChoice, None)
             elif num_test_choice == '2':
-                hypothesis_tTest(roundingValue, tailChoice, None)
+                hypothesis_tTest(round_val, tailChoice, None)
             elif num_test_choice == '3':
-                hypothesis_correlation(roundingValue)
+                hypothesis_correlation(round_val)
 
     # Categorical tests (proportion, difference of proportion etc)
     elif data_type == '2':
         cat_test_choice = str(input('1: Chi-Squared | 2: Fishers exact: '))
         if cat_test_choice == '1':
-            hypothesis_chisquare(roundingValue)
+            hypothesis_chisquare(round_val)
         elif cat_test_choice == '2':
-            hypothesis_fishers(roundingValue)
+            hypothesis_fishers(round_val)
 
-def hypothesis_zTest(roundingValue, tailChoice, tailSide):
+def hypothesis_zTest(round_val, tailChoice, tailSide):
 
     nullValue = float(input('Enter null hypothesis value: '))
-    sampleSize = float(input('Enter sample size: '))
+    sample_size = float(input('Enter sample size: '))
     sampleMean = float(input('Enter sample mean: '))
     sampleSD = float(input('Enter sample SD: '))
     alphaValue = float(input('Enter desired significance (0.10|0.05|0.01): '))
 
-    popSD = sampleSD / math.sqrt(sampleSize)
+    popSD = sampleSD / math.sqrt(sample_size)
 
     zValue = (sampleMean - nullValue) / popSD
 
-    zArea = zscore_toarea(roundingValue, zValue)
+    zArea = zscore_toarea(round_val, zValue)
 
     if tailChoice == '1':
-        pValue = round(1 - float(zArea), int(roundingValue))
+        pValue = round(1 - float(zArea), int(round_val))
     elif tailChoice == '2':
-        pValue = round(2 * (1 - float(zArea)), int(roundingValue))
+        pValue = round(2 * (1 - float(zArea)), int(round_val))
         print('P-value: ' + str(pValue))
 
     print(hypothesis_decision(pValue, alphaValue, tailChoice, tailSide))
 
-def hypothesis_tTest(roundingValue, tailChoice, tailSide):
+def hypothesis_tTest(round_val, tailChoice, tailSide):
 
     tType = str(input('1: One Sample | 2: 2-Sample | 3: Indepdendent 2-Sample: '))
     alphaValue = float(input('Enter desired significance (0.10|0.05|0.01): '))
@@ -512,13 +577,13 @@ def hypothesis_tTest(roundingValue, tailChoice, tailSide):
     if tType == '1' or tType == '2':
 
         nullValue = float(input('Enter null hypothesis value: '))
-        sampleSize = float(input('Enter sample size: '))
+        sample_size = float(input('Enter sample size: '))
         sampleMean = float(input('Enter sample mean: '))
         sampleSD = float(input('Enter sample SD: '))
 
-        df = sampleSize - 1
+        df = sample_size - 1
 
-        tScore = (sampleMean - nullValue) / (sampleSD / math.sqrt(sampleSize))
+        tScore = (sampleMean - nullValue) / (sampleSD / math.sqrt(sample_size))
         criticalT = math.fabs(st.t.ppf(alphaValue, df))
 
         print('T-Score: ' + str(tScore))
@@ -541,8 +606,8 @@ def hypothesis_tTest(roundingValue, tailChoice, tailSide):
         df = hypothesis_df(s1, n1, s2, n2)
         criticalT = math.fabs(st.t.ppf(alphaValue, df))
 
-        print(round(tScore, roundingValue))
-        print(round(criticalT, roundingValue))
+        print(round(tScore, round_val))
+        print(round(criticalT, round_val))
 
     if tScore < criticalT:
         print('FTR Null')
@@ -564,7 +629,7 @@ def table_maker(table, rows, i):
             return new_row
             break
 
-def hypothesis_chisquare(roundingValue):
+def hypothesis_chisquare(round_val):
     table = []
     rows = int(input('Enter number of rows: '))
 
@@ -573,15 +638,15 @@ def hypothesis_chisquare(roundingValue):
 
     chi, p, dof, expected = st.chi2_contingency(table)
     results = [chi, p, dof]
-    output = [round(i, roundingValue) for i in results]
+    output = [str(round(result, round_val)) for result in results]
 
-    print('Chi Square value: ' + str(output[0]))
-    print('P-value: ' + str(output[1]))
-    print('Degrees of freedom: ' + str(output[2]))
+    print('Chi Square value: ' + output[0])
+    print('P-value: ' + (output[1]))
+    print('Degrees of freedom: ' + output[2])
 
     return results
 
-def hypothesis_fishers(roundingValue):
+def hypothesis_fishers(round_val):
 
     table = []
     rows = int(input('Enter number of rows: '))
@@ -591,14 +656,14 @@ def hypothesis_fishers(roundingValue):
 
     odds, p = st.fisher_exact(table)
     results = [odds, p]
-    output = [round(i, roundingValue) for i in results]
+    output = [str(round(result, round_val)) for result in results]
 
-    print('Odds ratio: ' + str(output[0]))
-    print('P-value: ' + str(output[1]))
+    print('Odds ratio: ' + output[0])
+    print('P-value: ' + output[1])
 
     return results
 
-def hypothesis_correlation(roundingValue):
+def hypothesis_correlation(round_val):
 
     print('Enter group 1 numbers (continuous) separated by a space:')
     group_1_nums = [float(x) for x in input().split()]
@@ -623,10 +688,10 @@ def hypothesis_correlation(roundingValue):
             r, p = st.pearsonr(data[0], data[1])
 
         results = [r, p]
-        output = [round(i, roundingValue) for i in results]
+        output = [str(round(result, round_val)) for result in results]
 
-        print('R-coefficient: ' + str(output[0]))
-        print('P-value: ' + str(output[1]))
+        print('R-coefficient: ' + output[0])
+        print('P-value: ' + output[1])
 
         return results
 # Consider deleting and handle each decision individually (becomes difficult w/ proportion based tests)
@@ -667,7 +732,7 @@ def normality_checker(data):
     if p > 0.05:
         return True
 
-def confidence_interval(roundingValue, calc_SE):
+def confidence_interval(round_val, calc_SE):
 
     pointEstimate = float(input('Enter the point estimate: '))
 
@@ -703,22 +768,22 @@ def confidence_interval(roundingValue, calc_SE):
     elif CI_Choice == '3':
         z = 2.58
     elif CI_Choice == '4':
-        z = zscore_toarea(roundingValue, None)
+        z = zscore_toarea(round_val, None)
 
     CIlow = pointEstimate - (z * SE)
     CIhigh = pointEstimate + (z * SE)
     marginError = (CIhigh - CIlow) / 2
 
     results = [CIlow, CIhigh, marginError]
-    output = [round(i, roundingValue) for i in results]
+    output = [str(round(result, round_val)) for result in results]
 
     print('There is a 95% chance that the true population [parameter] ' +
-          'lies between the interval: (' + str(output[0]) + ',' +
-          str(output[1]) + ') ± ' + str(output[2]))
+          'lies between the interval: (' + output[0] + ',' +
+          output[1] + ') +/- ' + output[2])
 
     return results
 
-def nonparametric_calcs(roundingValue):
+def nonparametric_calcs(round_val):
     print('Enter group 1 numbers (continuous) separated by a space:')
     group_1_nums = [float(x) for x in input().split()]
 
@@ -729,6 +794,7 @@ def nonparametric_calcs(roundingValue):
 
     normal_1 = normality_checker(data[0])
     normal_2 = normality_checker(data[1])
+
     if not normal_1 or not normal_2:
         print('Data is not normal')
     elif normal_1 and normal_2:
@@ -739,35 +805,20 @@ def nonparametric_calcs(roundingValue):
             statistic, p = st.ranksums(data[0], data[1])
 
     results = [statistic, p]
-    output = [round(i, roundingValue) for i in results]
+    output = [str(round(result, round_val)) for result in results]
 
-    print('Statistic: ' + str(output[0]))
-    print('P-value: ' + str(output[1]))
+    print('Statistic: ' + output[0])
+    print('P-value: ' + output[1])
 
     return results
 
-def calcselection(calcChoice, roundingValue):
-    if calcChoice == 1:
-        zscore_calcs(roundingValue)
-    elif calcChoice == 2:
-        bayes(roundingValue)
-    elif calcChoice == 3:
-        directadjustment(roundingValue)
-    elif calcChoice == 4:
-        twobytwo(roundingValue)
-    elif calcChoice == 5:
-        histogram_feat(roundingValue)
-    elif calcChoice == 6:
-        estimation(roundingValue)
-    elif calcChoice == 7:
-        binomial(roundingValue)
-    elif calcChoice == 8:
-        hypothesis_calcs(roundingValue)
-    elif calcChoice == 9:
-        confidence_interval(roundingValue)
-    elif calcChoice == 10:
-        nonparametric_calcs(roundingValue)
-def chooser():
+def calcselection(start_calc, i=4):
+    chooser = {'1': zscore_calcs, '2': bayes, '3': directadjustment, '4': twobytwo,
+               '5': histogram_feat, '6': estimation_calcs, '7': discrete_calcs,
+               '8': hypothesis_calcs, '9': confidence_interval, '10': nonparametric_calcs}
+    chooser[start_calc](i)
+
+def calc_chooser():
     print('Enter the calc you would like to use')
     print('1 - zscore')
     print('2 - bayes')
@@ -775,17 +826,13 @@ def chooser():
     print('4 - 2X2 Solver')
     print('5 - Histogram')
     print('6 - Estimations')
-    print('7 - Binomial')
+    print('7 - Discrete distributions')
     print('8 - Hypothesis Testing')
     print('9 - Confidence Interval')
     print('10 - Nonparametric Tests')
-    calcChoice = int(input())
 
-    roundingValue = int(input('Round result to how many decimal places? '))
+    start_calc = str(input())
+    round_val = int(input('Round result to how many decimal places? '))
+    calcselection(start_calc, round_val)
 
-    if roundingValue:
-        calcselection(calcChoice, roundingValue)
-    else:
-        calcselection(calcChoice, 4)
-
-chooser()
+calc_chooser()
