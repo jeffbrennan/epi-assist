@@ -3,6 +3,7 @@ import scipy.stats as st
 import numpy as np
 import pandas as pd
 
+
 def directadjustment(round_val):
 
     print('======== DIRECT ADJUSTMENT =========')
@@ -35,6 +36,7 @@ def directadjustment(round_val):
 
     return results
 
+
 # Zscore calculations - 1 #
 def zscore_calcs(round_val):
 
@@ -45,17 +47,19 @@ def zscore_calcs(round_val):
     typeChoice = str(input())
     zscore_chooser(round_val, typeChoice)
 
+
 # Function navigates to the appropriate zscore related calculator based on user choice
 def zscore_chooser(round_val, choice):
 
     if choice == '1':
         zscore_value(round_val)
     elif choice == '2':
-        zscore_toarea(round_val, None)
+        zscore_to_area(round_val, None)
     elif choice == '3':
-        area_tozscore(round_val, None)
+        area_to_zscore(round_val, None)
     elif choice == '4':
         zscore_observation(round_val)
+
 
 # Returns z score given observed value, pop mean, and standard deviation
 def zscore_value(round_val):
@@ -69,12 +73,13 @@ def zscore_value(round_val):
 
     print('Z Score: ' + str(zResult))
 
-    zscore_toarea(round_val, zResult)
+    zscore_to_area(round_val, zResult)
 
     return zResult
 
+
 # Converts a given z score to its corresponding percentile, relates to zscore_value function
-def zscore_toarea(round_val, calc_zscore):
+def zscore_to_area(round_val, calc_zscore):
 
     # Uses z score from zscore_value, otherwise prompts user input
     if calc_zscore:
@@ -95,7 +100,8 @@ def zscore_toarea(round_val, calc_zscore):
 
     return areacalc
 
-def area_tozscore(round_val, percentile):
+
+def area_to_zscore(round_val, percentile):
 
     if percentile:
         area = percentile
@@ -117,7 +123,8 @@ def area_tozscore(round_val, percentile):
 
     elif area > 100:
         print('Area must be between 0 and 1 - restarting...')
-        area_tozscore(round_val, None)
+        area_to_zscore(round_val, None)
+
 
 def zscore_observation(round_val):  # returns observation at a given percentile
 
@@ -125,13 +132,14 @@ def zscore_observation(round_val):  # returns observation at a given percentile
     SD = float(input('Enter SD: '))
     Mean = float(input('Enter mean: '))
 
-    zResult = area_tozscore(round_val, percentile)
+    zResult = area_to_zscore(round_val, percentile)
 
     observation = (zResult * SD) + Mean
     observation_output = round(observation, round_val)
 
     print(str(percentile) + ' percentile observation: ' + str(observation_output))
     return observation
+
 
 # Bayes - 2 #
 def bayes(round_val):
@@ -150,6 +158,11 @@ def bayes(round_val):
 
     print(result_output)
     return result
+
+
+# TODO: add life table adjustments etc
+# def disease_occurence(round_val):
+
 
 def twobytwo(round_val):
 
@@ -213,7 +226,7 @@ def twobytwo(round_val):
     # Exposed incidence, nonexposed incidence, population incidence, adjusted rate, percent adjusted rate
     eIncidence, nonEIncidence, popIncidence, AR, PAR = incidence_2x2(A, B, C, D)
 
-    errorChoice = str(input('Does the table have information bias (1 - yes|2 - no): '))
+    errorChoice = str(input('Does the table have information bias (1: yes |2: no) '))
     if errorChoice == '1':
         errorRR, errorOR = error_2x2(A, B, C, D)
 
@@ -254,6 +267,7 @@ def twobytwo(round_val):
 
     return results
 
+
 def RR_OR(A, B, C, D):
 
     RR = (A / (A + B)) / (C / (C + D))
@@ -261,17 +275,20 @@ def RR_OR(A, B, C, D):
 
     return RR, OR
 
+
 def sens_spec(A, B, C, D):
     sensitivity = A / (A + C)
     specificity = D / (B + D)
 
     return sensitivity, specificity
 
+
 def PPV_NPV(A, B, C, D):
     PPV = A / (A + B)
     NPV = D / (C + D)
 
     return PPV, NPV
+
 
 def incidence_2x2(A, B, C, D):
     totalPop = A + B + C + D
@@ -285,12 +302,13 @@ def incidence_2x2(A, B, C, D):
 
     return eIncidence, nonEIncidence, popIncidence, AR, PAR
 
+
 def error_2x2(A, B, C, D):
 
-    errorType = str(input('Enter error type (1 - nondifferential |2 - differential): '))
+    errorType = str(input('Enter error type (1: nondifferential | 2: differential) '))
     errorRate = float(input('Enter misclassification rate: '))
-    errorDirection = str(input('Enter error direction (1 - Error-> No error |' +
-                               '2 - No error-> Error): '))
+    errorDirection = str(input('Enter error direction (1: Error->No error |' +
+                               '2: No error->Error): '))
 
     if errorType == '1' and errorDirection == '1':
         A -= (A * errorRate)
@@ -299,14 +317,13 @@ def error_2x2(A, B, C, D):
         D += (B * errorRate)
 
     if errorType == '1' and errorDirection == '2':
-
         A += (C * errorRate)
         B += (D * errorRate)
         C -= (C * errorRate)
         D -= (D * errorRate)
 
     if errorType == '2':
-        groupSelector = str(input('Enter differential group (1 - cases|2- controls): '))
+        groupSelector = str(input('Enter differential group (1: cases | 2: controls) '))
 
         if groupSelector == '1' and errorDirection == '1':
             A -= (A * errorRate)
@@ -339,6 +356,7 @@ def histogram_feat(round_val):
     mean = np.mean(data)
     median = np.median(data)
 
+# This gross
     if mean > median:
         skew_text = 'Histogram is right-skewed'
     elif mean < median:
@@ -366,8 +384,9 @@ def histogram_feat(round_val):
 
     return skew_calc, kurt_calc, shapiro_calc
 
+
 def estimation_calcs(round_val):
-    print('1 - Population mean | 2 - Sample mean | 3 - Variation')
+    print('Enter desired estimation: (1: Population mean | 2: Sample mean | 3: Variation) ')
     typeChoice = str(input())
 
     if typeChoice == '1':
@@ -376,6 +395,7 @@ def estimation_calcs(round_val):
         sample_calc(round_val)
     elif typeChoice == '3':
         var_calc(round_val)
+
 
 def pop_calc(round_val):
     sample_size = int(input('Enter number in sample: '))
@@ -399,6 +419,7 @@ def pop_calc(round_val):
         print('Entered incorrect number of observations - restarting...')
         estimation_calcs(round_val)
 
+
 def sample_calc(round_val):
     sample_size = int(input('Enter number in sample: '))
 
@@ -406,7 +427,6 @@ def sample_calc(round_val):
     observations = [float(x) for x in input().split()]
 
     if len(observations) == sample_size:
-
         mean, variance, SD, SE = list_calcs(observations, sample_size)
 
         results = [mean, variance, SD, SE]
@@ -422,6 +442,7 @@ def sample_calc(round_val):
     else:
         print('Entered incorrect number of observations - restarting...')
         estimation_calcs(round_val)
+
 
 def var_calc(round_val):
     s_var = float(input('Enter sample variance: '))
@@ -441,6 +462,7 @@ def var_calc(round_val):
     output = [str(round(result, round_val)) for result in results]
     print('We are ' + output[0] + '% confident that the variance is between ' + output[1] + ' and ' + output[2])
 
+
 def list_calcs(numberList, sample_size):
 
     mean = sum(numberList) / sample_size
@@ -453,20 +475,22 @@ def list_calcs(numberList, sample_size):
 
     return mean, variance, SD, SE
 
+
 def discrete_calcs(round_val):
-    discrete_choice = str(input('(1 - Binomial | 2 - Poisson): '))
+    discrete_choice = str(input('Enter desired discrete calc (1: Binomial | 2: Poisson) '))
 
     if discrete_choice == '1':
         binomial_calc(round_val)
     elif discrete_choice == '2':
         poisson_calc(round_val)
 
+
 def binomial_calc(round_val):
 
     n = int(input('Enter n: '))
     p = float(input('Enter p: '))
 
-    num_events = int(input('Enter desired number of events (int): '))
+    num_events = int(input('Enter desired number of events [int]: '))
 
     prob_sum = 0
     for i in range(num_events):
@@ -485,11 +509,12 @@ def binomial_calc(round_val):
 
     return results
 
+
 def poisson_calc(round_val):
     poisson_rate = float(input('Enter event rate: '))
     poisson_time = float(input('Enter desired event time: '))
     poisson_pop = int(input('Enter size of population: '))
-    num_events = int(input('Enter desired number of events (int): '))
+    num_events = int(input('Enter desired number of events [int]: '))
 
     expected_num = poisson_rate * poisson_time * poisson_pop
 
@@ -510,18 +535,19 @@ def poisson_calc(round_val):
 
     return results
 
+
 def hypothesis_calcs(round_val):
     print('================== HYPOTHESIS TESTER ================== ')
 
-    data_type = str(input('1: Numerical | 2: Categorical'))
+    data_type = str(input('Enter the data type: (1: Numerical | 2: Categorical) '))
     # Numerical Tests (t test etc)
     if data_type == '1':
-        num_test_choice = str(input('|1: Z-test|2: T-Test|3: Correlation|'))
+        num_test_choice = str(input('1: Z-test | 2: T-Test| 3: Correlation: '))
 
         tailChoice = str(input('1: One-tailed test | 2: Two-tailed test: '))
 
         if tailChoice == '1':
-            print('Enter greater or less than null: 1 - greater (upper) | 2 - less than (lower)')
+            print('1: HA > H0 | 2: HA < H0')
             tailSide = str(input())
 
             if num_test_choice == '1':
@@ -541,11 +567,12 @@ def hypothesis_calcs(round_val):
 
     # Categorical tests (proportion, difference of proportion etc)
     elif data_type == '2':
-        cat_test_choice = str(input('1: Chi-Squared | 2: Fishers exact: '))
+        cat_test_choice = str(input('Enter desired test: (1: Chi-Squared | 2: Fishers exact) '))
         if cat_test_choice == '1':
             hypothesis_chisquare(round_val)
         elif cat_test_choice == '2':
             hypothesis_fishers(round_val)
+
 
 def hypothesis_zTest(round_val, tailChoice, tailSide):
 
@@ -556,26 +583,26 @@ def hypothesis_zTest(round_val, tailChoice, tailSide):
     alphaValue = float(input('Enter desired significance (0.10|0.05|0.01): '))
 
     popSD = sampleSD / math.sqrt(sample_size)
-
     zValue = (sampleMean - nullValue) / popSD
-
-    zArea = zscore_toarea(round_val, zValue)
+    zArea = zscore_to_area(round_val, zValue)
 
     if tailChoice == '1':
         pValue = round(1 - float(zArea), int(round_val))
     elif tailChoice == '2':
         pValue = round(2 * (1 - float(zArea)), int(round_val))
-        print('P-value: ' + str(pValue))
 
-    print(hypothesis_decision(pValue, alphaValue, tailChoice, tailSide))
+    print('P-value: ' + str(pValue))
+
+    return zValue, zArea, pValue
+
 
 def hypothesis_tTest(round_val, tailChoice, tailSide):
 
-    tType = str(input('1: One Sample | 2: 2-Sample | 3: Indepdendent 2-Sample: '))
+    tType = str(input('Enter desired type of t-test: (1: One Sample | 2: 2-Sample | 3: Indepdendent 2-Sample) '))
     alphaValue = float(input('Enter desired significance (0.10|0.05|0.01): '))
 
+# TODO: replace with functions
     if tType == '1' or tType == '2':
-
         nullValue = float(input('Enter null hypothesis value: '))
         sample_size = float(input('Enter sample size: '))
         sampleMean = float(input('Enter sample mean: '))
@@ -590,7 +617,6 @@ def hypothesis_tTest(round_val, tailChoice, tailSide):
         print('Critical T-Score: ', criticalT)
 
     elif tType == '3':
-
         xbar1 = float(input('Enter sample mean 1: '))
         s1 = float(input('Enter sample SD 1: '))
         n1 = int(input('Enter sample size 1: '))
@@ -614,6 +640,7 @@ def hypothesis_tTest(round_val, tailChoice, tailSide):
     elif tScore > criticalT:
         print('Reject Null')
 
+
 def table_maker(table, rows, i):
     while True:
         input_text = 'Row #' + str(i + 1) + ' | Enter row values separated by a space: '
@@ -628,6 +655,7 @@ def table_maker(table, rows, i):
         else:
             return new_row
             break
+
 
 def hypothesis_chisquare(round_val):
     table = []
@@ -646,6 +674,7 @@ def hypothesis_chisquare(round_val):
 
     return results
 
+
 def hypothesis_fishers(round_val):
 
     table = []
@@ -662,6 +691,7 @@ def hypothesis_fishers(round_val):
     print('P-value: ' + output[1])
 
     return results
+
 
 def hypothesis_correlation(round_val):
 
@@ -680,7 +710,7 @@ def hypothesis_correlation(round_val):
         print('Data is not normal')
 
     elif normal_1 and normal_2:
-        calc_choice = str(input('1: Spearman|2: Pearson|'))
+        calc_choice = str(input('|1: Spearman|2: Pearson| '))
 
         if calc_choice == '1':
             r, p = st.spearmanr(data[0], data[1])
@@ -694,25 +724,7 @@ def hypothesis_correlation(round_val):
         print('P-value: ' + output[1])
 
         return results
-# Consider deleting and handle each decision individually (becomes difficult w/ proportion based tests)
-def hypothesis_decision(testValue, alphaValue, tailChoice, tailSide):
 
-    if tailChoice == '1':
-        if tailSide == '1':
-            if testValue > alphaValue:
-                return(str(testValue) + ' > ' + str(alphaValue) + ': Reject null hypothesis')
-            else:
-                return(str(testValue) + ' < ' + str(alphaValue) + ': FTR null hypothesis')
-        elif tailSide == '2':
-            if testValue < alphaValue:
-                return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
-            else:
-                return(str(testValue) + ' > ' + str(alphaValue) + ': FTR null hypothesis')
-    elif tailChoice == '2':
-        if abs(testValue) < abs(alphaValue):
-            return(str(testValue) + ' < ' + str(alphaValue) + ': Reject null hypothesis')
-        else:
-            return(str(-testValue) + ' <= ' + str(alphaValue) + ' <= ' + str(testValue) + ': FTR null hypothesis')
 
 def hypothesis_df(s1, n1, s2, n2):
 
@@ -726,11 +738,16 @@ def hypothesis_df(s1, n1, s2, n2):
     print('Degrees of Freedom: ' + str(df))
     return df
 
+
 def normality_checker(data):
     t, p = st.shapiro(data)
 
-    if p > 0.05:
-        return True
+    # TODO: test this
+
+    # if p > 0.05:
+    #     return True
+    return p > 0.05
+
 
 def confidence_interval(round_val, calc_SE):
 
@@ -739,7 +756,7 @@ def confidence_interval(round_val, calc_SE):
     if calc_SE:
         SE = calc_SE
     else:
-        SE_Choice = str(input('Enter SE type|1: Z Score|2: Proportions|3: Diff Proportions: '))
+        SE_Choice = str(input('Enter SE type ( 1: Z Score | 2: Proportions | 3: Diff Proportions ) '))
         if SE_Choice == '1':
             SD = float(input('Enter the standard deviation: '))
             sample_size = float(input('Enter the sample size: '))
@@ -758,7 +775,10 @@ def confidence_interval(round_val, calc_SE):
             SE = math.sqrt((phat_1 * (1 - phat_1) / sample_size_1) +
                            (phat_2 * (1 - phat_2) / sample_size_2))
 
-    print('Enter desired % confidence: |1: 90|2: 95|3: 99|4: Custom|')
+    print('Enter desired % confidence (1: 90 | 2: 95 | 3: 99 | 4: Custom ) ')
+
+    # TODO: replace this with a dictionary or automated function call
+
     CI_Choice = str(input())
 
     if CI_Choice == '1':
@@ -768,7 +788,7 @@ def confidence_interval(round_val, calc_SE):
     elif CI_Choice == '3':
         z = 2.58
     elif CI_Choice == '4':
-        z = zscore_toarea(round_val, None)
+        z = zscore_to_area(round_val, None)
 
     CIlow = pointEstimate - (z * SE)
     CIhigh = pointEstimate + (z * SE)
@@ -782,6 +802,7 @@ def confidence_interval(round_val, calc_SE):
           output[1] + ') +/- ' + output[2])
 
     return results
+
 
 def nonparametric_calcs(round_val):
     print('Enter group 1 numbers (continuous) separated by a space:')
@@ -798,7 +819,7 @@ def nonparametric_calcs(round_val):
     if not normal_1 or not normal_2:
         print('Data is not normal')
     elif normal_1 and normal_2:
-        test_choice = str(input('|1: Wilcoxon Signed (dependent)|2: Wilcoxon Rank Sum (independent)| '))
+        test_choice = str(input('Are the observations dependent? (1: Yes | 2: No) '))
         if test_choice == '1':
             statistic, p = st.wilcoxon(data[0], data[1])
         elif test_choice == '2':
@@ -812,13 +833,15 @@ def nonparametric_calcs(round_val):
 
     return results
 
+
 def calcselection(start_calc, i=4):
     chooser = {'1': zscore_calcs, '2': bayes, '3': directadjustment, '4': twobytwo,
                '5': histogram_feat, '6': estimation_calcs, '7': discrete_calcs,
                '8': hypothesis_calcs, '9': confidence_interval, '10': nonparametric_calcs}
     chooser[start_calc](i)
 
-def calc_chooser():
+
+def main():
     print('Enter the calc you would like to use')
     print('1 - zscore')
     print('2 - bayes')
@@ -835,4 +858,6 @@ def calc_chooser():
     round_val = int(input('Round result to how many decimal places? '))
     calcselection(start_calc, round_val)
 
-calc_chooser()
+
+if __name__ == "__main__":
+    main()
